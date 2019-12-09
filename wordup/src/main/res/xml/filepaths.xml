@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<paths>
-    <files-path
-        name="soundboard_int"
-        path="Soundboard/"/>
-
-    <!-- TODO: Sharing must be done with with internal dir. Public dir only for download function. -->
-</paths>
