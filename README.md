@@ -1,4 +1,7 @@
 # WordUp
+
+[![Build Status](https://travis-ci.com/CodeRedDev/WordUp.svg?branch=master)](https://travis-ci.com/CodeRedDev/WordUp)
+
 WordUp is an Android open source framework for creating soundboard apps.
 
 While currently under development it should help developers to create their own soundboard app in almost no time.
