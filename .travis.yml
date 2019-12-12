@@ -8,8 +8,8 @@ android:
     # The SDK version used to compile your project
     - android-28
 env:
-  - PROJECT_NAME = wordup
-  - PROJECT_NAME = app
+  - PROJECT_NAME=wordup
+  - PROJECT_NAME=app
 script:
   - ./gradlew clean $PROJECT_NAME:ktlintCheck
 
