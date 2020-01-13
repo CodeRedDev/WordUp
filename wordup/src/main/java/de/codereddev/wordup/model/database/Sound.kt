@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "Sounds")
 data class Sound(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Int = 0,
     var name: String,
     var path: String,
     var isNetworkResource: Boolean = false,

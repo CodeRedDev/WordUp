@@ -25,8 +25,8 @@ interface SoundDao {
     fun getAllSounds(): LiveData<List<Sound>>
 
     @Query("SELECT * FROM Sounds WHERE category = :category ORDER BY name ASC")
-    fun getSoundsFromCategory(category: Category)
+    fun getSoundsFromCategory(category: Category): LiveData<List<Sound>>
 
     @Query("SELECT * FROM Sounds WHERE isFavorite = 1 ORDER BY name ASC")
-    fun getFavoriteSounds()
+    fun getFavoriteSounds(): LiveData<List<Sound>>
 }
