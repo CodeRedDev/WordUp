@@ -9,7 +9,7 @@ android:
     - android-28
 env:
   - PROJECT_NAME=wordup
-  - PROJECT_NAME=app
+  - PROJECT_NAME=example
 script:
   - ./gradlew clean $PROJECT_NAME:ktlintCheck
 

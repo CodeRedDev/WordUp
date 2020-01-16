@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
-@Database(entities = [Sound::class, Category::class], version = 1)
+@Database(entities = [Sound::class, Category::class], version = 1, exportSchema = false)
+@TypeConverters(Converters::class)
 abstract class WordUpDatabase : RoomDatabase() {
 
     abstract fun soundDao(): SoundDao
-    abstract fun categoryDao(): Category
+    abstract fun categoryDao(): CategoryDao
 
     companion object {
         @Volatile
