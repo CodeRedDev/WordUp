@@ -1,6 +1,8 @@
 package de.codereddev.wordupexample
 
 import android.app.Application
+import de.codereddev.wordup.WordUp
+import de.codereddev.wordup.WordUpConfig
 import de.codereddev.wordup.model.database.WordUpDatabase
 import de.codereddev.wordupexample.viewmodel.SoundListViewModel
 import de.codereddev.wordupexample.viewmodel.SoundListViewModelImpl
@@ -18,6 +20,12 @@ class WordUpExampleApp : Application() {
             androidContext(this@WordUpExampleApp)
             modules(applicationModule)
         }
+
+        WordUp.init(this, WordUpConfig().apply {
+            categoriesEnabled = true
+            newSoundsEnabled = true
+            directory = resources.getString(R.string.app_name)
+        })
     }
 
     private val applicationModule = module {
@@ -35,7 +43,7 @@ class WordUpExampleApp : Application() {
         }
 
         viewModel<SoundListViewModel> {
-            SoundListViewModelImpl(get())
+            SoundListViewModelImpl(get(), get())
         }
     }
 }

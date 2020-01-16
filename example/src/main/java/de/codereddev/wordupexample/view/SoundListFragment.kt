@@ -1,13 +1,20 @@
 package de.codereddev.wordupexample.view
 
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
+import de.codereddev.wordup.WordUp
 import de.codereddev.wordup.model.database.Sound
 import de.codereddev.wordupexample.R
 import de.codereddev.wordupexample.view.adapter.SoundListAdapter
@@ -26,13 +33,19 @@ class SoundListFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_sound_list, container, false)
 
-        rootView.add_sound_btn.setOnClickListener {
-            viewModel.addSound()
-        }
-
         soundListAdapter.itemClickListener = object : SoundListAdapter.ItemClickListener {
             override fun onItemClicked(sound: Sound) {
-                viewModel.deleteSound(sound)
+                viewModel.onSoundClick(sound)
+            }
+
+            override fun onItemLongClick(sound: Sound, view: View) {
+                val popup = PopupMenu(context!!, view)
+                popup.inflate(R.menu.sound_options_menu)
+                popup.setOnMenuItemClickListener {
+                    viewModel.onMenuItemSelected(sound, it.itemId)
+                    true
+                }
+                popup.show()
             }
         }
 
@@ -52,11 +65,41 @@ class SoundListFragment : Fragment() {
         })
 
         viewModel.events.observe(viewLifecycleOwner, Observer {
-            val eventMessage = when (it) {
-                SoundListViewModel.Event.INSERT -> "Inserted sound"
-                else -> "Deleted sound"
+            when (it) {
+                SoundListViewModel.Event.PERMISSION_WRITE_SETTINGS -> {
+                    val intent = Intent().apply {
+                        action = android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS
+                        data = Uri.parse("package:${context!!.packageName}")
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    startActivity(intent)
+                }
+                SoundListViewModel.Event.SYSTEM_SOUND_SET -> {
+                    Toast.makeText(context, R.string.system_sound_set, Toast.LENGTH_SHORT).show()
+                }
+                SoundListViewModel.Event.SOUND_SAVED -> {
+                    val text = getString(R.string.sound_saved, WordUp.config.directory)
+                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                }
             }
-            Toast.makeText(context, eventMessage, Toast.LENGTH_SHORT).show()
+        })
+
+        viewModel.intents.observe(viewLifecycleOwner, Observer {
+            context!!.startActivity(Intent.createChooser(it, getString(R.string.share_sound_via)))
+        })
+
+        viewModel.permissionRequests.observe(viewLifecycleOwner, Observer {
+            if (ContextCompat.checkSelfPermission(
+                    context!!,
+                    it.permission
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                viewModel.onPermissionResult(it, true)
+            } else {
+                ActivityCompat.requestPermissions(activity!!, arrayOf(it.permission), it.action)
+            }
         })
     }
 }
