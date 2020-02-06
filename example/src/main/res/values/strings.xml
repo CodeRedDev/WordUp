@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">WordUpExample</string>
+
+    <string name="loading_screen_title">Example Soundboard</string>
+
+    <string name="action_set_ringtone">Set as ringtone</string>
+    <string name="action_set_notification">Set as notification</string>
+    <string name="action_set_alarm">Set as alarm</string>
+    <string name="action_share">Share</string>
+    <string name="action_save">Save</string>
+
+    <string name="system_sound_set">System sound set</string>
+    <string name="share_sound_via">"Share sound via..."</string>
+    <string name="sound_saved">"Sound saved to Music/%s"</string>
 </resources>

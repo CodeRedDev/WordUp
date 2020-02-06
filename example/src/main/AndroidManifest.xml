@@ -11,12 +11,24 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".view.MainActivity"
-            android:label="@string/app_name">
+        <activity
+            android:name=".view.MainActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".view.LoadingScreenActivity"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="de.codereddev.wordup.provider.WordUpProvider"
+            android:authorities="${packageName}.wordup.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
     </application>
 </manifest>

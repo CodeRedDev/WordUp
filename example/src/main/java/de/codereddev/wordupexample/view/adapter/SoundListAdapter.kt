@@ -16,6 +16,8 @@ class SoundListAdapter : RecyclerView.Adapter<SoundListAdapter.ViewHolder>() {
 
     interface ItemClickListener {
         fun onItemClicked(sound: Sound)
+
+        fun onItemLongClick(sound: Sound, view: View)
     }
 
     private val soundList: MutableList<Sound> = mutableListOf()
@@ -37,6 +39,11 @@ class SoundListAdapter : RecyclerView.Adapter<SoundListAdapter.ViewHolder>() {
 
         holder.itemView.setOnClickListener {
             itemClickListener?.onItemClicked(sound)
+        }
+
+        holder.itemView.setOnLongClickListener {
+            itemClickListener?.onItemLongClick(sound, it)
+            true
         }
     }
 

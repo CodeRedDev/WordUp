@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_set_ringtone"
+        android:title="@string/action_set_ringtone" />
+
+    <item
+        android:id="@+id/action_set_notification"
+        android:title="@string/action_set_notification" />
+
+    <item
+        android:id="@+id/action_set_alarm"
+        android:title="@string/action_set_alarm" />
+
+    <item
+        android:id="@+id/action_share"
+        android:title="@string/action_share" />
+
+    <item
+        android:id="@+id/action_save"
+        android:title="@string/action_save" />
+</menu>
