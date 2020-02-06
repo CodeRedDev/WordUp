@@ -21,4 +21,6 @@ internal object ErrorConstants {
         "With the given WordUpConfig sound files must be located in a category subfolder!"
     const val INITIALIZER_CATEGORY_SUBFOLDER =
         "Subfolders are not allowed in category subfolders"
+
+    const val PLAYER_LOCAL_NO_LOCAL = "LocalWordUpPlayer only supports local resources!"
 }
