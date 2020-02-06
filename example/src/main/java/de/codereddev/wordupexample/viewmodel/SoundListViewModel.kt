@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
 import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
@@ -15,6 +14,7 @@ import androidx.lifecycle.viewModelScope
 import de.codereddev.wordup.WordUp
 import de.codereddev.wordup.model.database.Sound
 import de.codereddev.wordup.model.database.SoundDao
+import de.codereddev.wordup.player.LocalWordUpPlayer
 import de.codereddev.wordup.provider.WordUpProvider
 import de.codereddev.wordup.util.StorageUtils
 import de.codereddev.wordupexample.R
@@ -64,15 +64,10 @@ class SoundListViewModelImpl(
     override val intents: MutableLiveData<Intent> = MutableLiveData()
     override val permissionRequests: MutableLiveData<PermissionRequest> = MutableLiveData()
 
-    private val mediaPlayer: MediaPlayer
+    private val wordupPlayer = LocalWordUpPlayer(context)
 
     init {
         soundDao.getAllSoundsLive().observeForever(soundListObserver)
-        mediaPlayer = MediaPlayer().apply {
-            setOnPreparedListener {
-                it.start()
-            }
-        }
     }
 
     override fun onMenuItemSelected(sound: Sound, itemId: Int) {
@@ -120,11 +115,7 @@ class SoundListViewModelImpl(
     }
 
     override fun onSoundClick(sound: Sound) {
-        mediaPlayer.reset()
-        StorageUtils.getAssetFd(context, sound).use {
-            mediaPlayer.setDataSource(it.fileDescriptor, it.startOffset, it.length)
-        }
-        mediaPlayer.prepareAsync()
+        wordupPlayer.play(context, sound)
     }
 
     @SuppressLint("MissingPermission")
@@ -157,6 +148,6 @@ class SoundListViewModelImpl(
     override fun onCleared() {
         super.onCleared()
         soundDao.getAllSoundsLive().removeObserver(soundListObserver)
-        mediaPlayer.release()
+        wordupPlayer.release()
     }
 }

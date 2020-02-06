@@ -112,7 +112,7 @@ class WordUpProvider : ContentProvider() {
                         var outputStream: OutputStream? = null
 
                         try {
-                            inputStream = context!!.assets.open(sound.path)
+                            inputStream = StorageUtils.getAssetInputStream(context!!, sound)
                             outputStream = FileOutputStream(file)
                             inputStream.copyTo(outputStream)
                         } catch (ex: IOException) {
