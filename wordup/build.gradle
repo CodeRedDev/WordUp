@@ -4,13 +4,18 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion versions.compileSdk
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        versionName "0.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.incremental": "true"]
+            }
+        }
     }
     buildTypes {
         release {
@@ -24,29 +29,33 @@ android {
     }
     // For Kotlin projects
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = versions.kotlinJvmTarget
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api deps.roomRuntime
+    api deps.roomKtx
+    api deps.androidxLiveData
+    api deps.exoplayerCore
 
-    def room_version = "2.2.3"
+    implementation deps.androidxCore
+    implementation deps.kotlinStdlibJdk8
 
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.1.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    testImplementation deps.junit
 
-    // Room
-    api "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
-    api "androidx.room:room-ktx:$room_version"
+    androidTestImplementation deps.androidxTestJunit
+    androidTestImplementation deps.androidxTestCore
+    androidTestImplementation deps.androidxTestRunner
 
-    api 'com.google.android.exoplayer:exoplayer-core:2.11.1'
-
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test:core:1.2.0'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    kapt deps.roomKaptCompiler
 }
+
+// Publishing
+ext {
+    PUBLISH_GROUP_ID = 'de.codereddev.wordup'
+    PUBLISH_ARTIFACT_ID = 'wordup-core'
+    PUBLISH_VERSION = android.defaultConfig.versionName
+}
+
+apply from: "${rootProject.projectDir}/scripts/publish-mavencentral.gradle"

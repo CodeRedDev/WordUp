@@ -28,7 +28,11 @@ This framework only provides the tools to create a soundboard app.
 
 ## Download
 
-TODO: Add Maven and gradle download instructions
+After adding `mavenCentral()` to your projects `build.gradle` you can add WordUp like this:
+
+```gradle
+implementation 'de.codereddev.wordup:wordup-core:0.1.1'
+```
 
 If you plan to use the offered player implementations you have to add Java 8 Support 
 to your app's `build.gradle`. Find out how to do that [here](https://developer.android.com/studio/write/java8-support).

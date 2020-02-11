@@ -1,6 +1,31 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    ext.versions = [
+            'compileSdk'         : 29,
+            'mindSdk'            : 21,
+            'targetSdk'          : 29,
+            'sourceCompatibility': JavaVersion.VERSION_1_8,
+            'targetCompatibility': JavaVersion.VERSION_1_8,
+            'kotlin'             : '1.3.61',
+            'kotlinJvmTarget'    : '1.8',
+            'room'               : '2.2.3'
+    ]
+    ext.deps = [
+            androidPlugin     : 'com.android.tools.build:gradle:3.5.3',
+            kotlinPlugin      : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
+            kotlinStdlibJdk8  : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
+            androidxCore      : 'androidx.core:core-ktx:1.2.0',
+            androidxLiveData  : "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0",
+            androidxTestCore  : 'androidx.test:core:1.2.0',
+            androidxTestJunit : 'androidx.test.ext:junit:1.1.1',
+            androidxTestRunner: 'androidx.test:runner:1.2.0',
+            junit             : 'junit:junit:4.12',
+            roomRuntime       : "androidx.room:room-runtime:${versions.room}",
+            roomKtx           : "androidx.room:room-ktx:${versions.room}",
+            roomKaptCompiler  : "androidx.room:room-compiler:${versions.room}",
+            exoplayerCore     : 'com.google.android.exoplayer:exoplayer-core:2.11.1'
+    ]
     repositories {
         google()
         jcenter()
@@ -10,17 +35,15 @@ buildscript {
         }
     }
 
-    ext.kotlin_version = '1.3.61'
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath deps.androidPlugin
+        classpath deps.kotlinPlugin
     }
 }
 
 plugins {
     id "org.jlleitschuh.gradle.ktlint" version "9.1.1"
+    id 'org.jetbrains.dokka' version '0.10.0'
 }
 
 allprojects {
