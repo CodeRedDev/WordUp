@@ -39,7 +39,7 @@ class SoundListFragment : Fragment() {
             }
 
             override fun onItemLongClick(sound: Sound, view: View) {
-                val popup = PopupMenu(context!!, view)
+                val popup = PopupMenu(requireContext(), view)
                 popup.inflate(R.menu.sound_options_menu)
                 popup.setOnMenuItemClickListener {
                     viewModel.onMenuItemSelected(sound, it.itemId)
@@ -69,7 +69,7 @@ class SoundListFragment : Fragment() {
                 SoundListViewModel.Event.PERMISSION_WRITE_SETTINGS -> {
                     val intent = Intent().apply {
                         action = android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS
-                        data = Uri.parse("package:${context!!.packageName}")
+                        data = Uri.parse("package:${requireContext().packageName}")
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     }
                     startActivity(intent)
@@ -87,18 +87,27 @@ class SoundListFragment : Fragment() {
         })
 
         viewModel.intents.observe(viewLifecycleOwner, Observer {
-            context!!.startActivity(Intent.createChooser(it, getString(R.string.share_sound_via)))
+            requireContext().startActivity(
+                Intent.createChooser(
+                    it,
+                    getString(R.string.share_sound_via)
+                )
+            )
         })
 
         viewModel.permissionRequests.observe(viewLifecycleOwner, Observer {
             if (ContextCompat.checkSelfPermission(
-                    context!!,
+                    requireContext(),
                     it.permission
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 viewModel.onPermissionResult(it, true)
             } else {
-                ActivityCompat.requestPermissions(activity!!, arrayOf(it.permission), it.action)
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(it.permission),
+                    it.action
+                )
             }
         })
     }

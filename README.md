@@ -109,13 +109,13 @@ E.g. you can then share the sound by firing an `Intent` from a fragment like thi
 
 ```kotlin
 fun shareSound(sound: Sound) {
-    val uri = WordUpProvider.getUriForSound(context!!, sound)
+    val uri = WordUpProvider.getUriForSound(requireContext(), sound)
     val shareIntent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_STREAM, uri)
         type = "audio/mp3"
     }
-    context!!.startActivity(Intent.createChooser(shareIntent, getString(R.string.share_sound_via)))
+    requireContext().startActivity(Intent.createChooser(shareIntent, getString(R.string.share_sound_via)))
 }
 ```
 

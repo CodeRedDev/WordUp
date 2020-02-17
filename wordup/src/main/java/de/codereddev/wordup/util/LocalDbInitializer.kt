@@ -61,7 +61,7 @@ class LocalDbInitializer(database: WordUpDatabase) {
     private suspend fun initializeWithoutCategory(context: Context, config: WordUpConfig) =
         withContext(Dispatchers.IO) {
             val curSoundNames = soundDao.getAllSounds().map { it.name }
-            val assetList = context.assets.list(PATH_WORDUP)!!
+            val assetList = getWordUpAssets(context)
             if (assetList.any { !it.endsWith(".mp3") })
                 throw IllegalArgumentException(ErrorConstants.INITIALIZER_NO_CATEGORY_SUBFOLDER)
 
@@ -92,8 +92,8 @@ class LocalDbInitializer(database: WordUpDatabase) {
         withContext(Dispatchers.IO) {
             val curCategories = categoryDao.getAllCategories().map { it.name }
 
-            val assetList = context.assets.list(PATH_WORDUP)
-            if (assetList == null || assetList.any { it.endsWith(".mp3") })
+            val assetList = getWordUpAssets(context)
+            if (assetList.any { it.endsWith(".mp3") })
                 throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_ROOT_MP3)
 
             val dirList = assetList.toList()
@@ -119,7 +119,7 @@ class LocalDbInitializer(database: WordUpDatabase) {
                 processedDirs.add(newCategory)
                 val category = Category(newCategory)
                 categoryDao.insert(category)
-                val assetFileList = context.assets.list("$PATH_WORDUP/$newCategory")!!
+                val assetFileList = getWordUpCategoryAssets(context, newCategory)
                 if (assetFileList.any { !it.endsWith(".mp3") })
                     throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_SUBFOLDER)
 
@@ -149,7 +149,7 @@ class LocalDbInitializer(database: WordUpDatabase) {
                 val category = Category(oldCategory)
                 val curSounds = soundDao.getSoundsFromCategory(category).map { it.name }
 
-                val assetFileList = context.assets.list("$PATH_WORDUP/$oldCategory")!!
+                val assetFileList = getWordUpCategoryAssets(context, oldCategory)
                 if (assetFileList.any { !it.endsWith(".mp3") })
                     throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_SUBFOLDER)
 
@@ -179,6 +179,16 @@ class LocalDbInitializer(database: WordUpDatabase) {
                 }
             }
         }
+
+    private fun getWordUpAssets(context: Context): Array<String> {
+        return context.assets.list(PATH_WORDUP)
+            ?: throw RuntimeException(ErrorConstants.INITIALIZER_WORDUP_ASSET)
+    }
+
+    private fun getWordUpCategoryAssets(context: Context, category: String): Array<String> {
+        return context.assets.list("$PATH_WORDUP/$category")
+            ?: throw RuntimeException(ErrorConstants.INITIALIZER_WORDUP_ASSET)
+    }
 
     companion object {
         private const val PATH_WORDUP = "wordup"
