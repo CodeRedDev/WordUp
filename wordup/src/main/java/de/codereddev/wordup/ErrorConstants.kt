@@ -5,6 +5,9 @@ internal object ErrorConstants {
     const val CONFIG_NOT_DEFINED = "WordUp not configured!"
     const val CONFIG_DIRECTORY_NOT_DEFINED = "A directory must be set in WordUpConfig!"
 
+    const val PROVIDER_CONTEXT = "WordUpProvider not attached to a context."
+    const val PROVIDER_SOUND_ID = "Uri does not contain sound id."
+
     const val STORAGE_ASSET_FD =
         "AssetFileDescriptor can only be retrieved from a locally stored sound!"
     const val STORAGE_ASSET_INPUT_STREAM =
@@ -20,7 +23,8 @@ internal object ErrorConstants {
     const val INITIALIZER_CATEGORY_ROOT_MP3 =
         "With the given WordUpConfig sound files must be located in a category subfolder!"
     const val INITIALIZER_CATEGORY_SUBFOLDER =
-        "Subfolders are not allowed in category subfolders"
+        "Subfolders are not allowed in category subfolders!"
+    const val INITIALIZER_WORDUP_ASSET = "Unknown error at WordUp asset folder. (NullPointer)"
 
     const val PLAYER_LOCAL_NO_LOCAL = "LocalWordUpPlayer only supports local resources!"
 }
