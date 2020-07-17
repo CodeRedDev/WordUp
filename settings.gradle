@@ -1,1 +1,1 @@
-include ':example', ':wordup'
+include ':example', ':wordup-core'

@@ -12,7 +12,7 @@ buildscript {
             'room'               : '2.2.3'
     ]
     ext.deps = [
-            androidPlugin     : 'com.android.tools.build:gradle:3.5.3',
+            androidPlugin     : 'com.android.tools.build:gradle:4.0.1',
             kotlinPlugin      : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
             kotlinStdlibJdk8  : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
             androidxCore      : 'androidx.core:core-ktx:1.2.0',
@@ -35,7 +35,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath deps.androidPlugin
         classpath deps.kotlinPlugin
     }
 }
