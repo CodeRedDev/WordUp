@@ -32,7 +32,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(":wordup")
+    implementation project(":wordup-core")
 
     def lifecycle_version = "2.2.0"
     def koin_version = "2.0.1"

@@ -14,7 +14,7 @@ WordUp offers a range of easy to use utility functions for use cases like:
 
 ## UNDER DEVELOPMENT
 
-While currently under development it should help developers to create their own soundboard app in almost no time.
+While currently under development WordUp will help developers to create their own soundboard app in almost no time.
 
 First steps of this project will be to build a strong local base where words will be saved in the apps assets.
 
