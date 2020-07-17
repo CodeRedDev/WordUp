@@ -12,10 +12,9 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import de.codereddev.wordup.ErrorConstants
+import de.codereddev.wordup.WordUp
 import de.codereddev.wordup.WordUpConfig
-import de.codereddev.wordup.model.database.Word
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import de.codereddev.wordup.database.Word
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -51,7 +50,10 @@ object StorageUtils {
      *
      * @throws IllegalArgumentException if directory was not defined in WordUpConfig
      */
-    suspend fun storeWord(context: Context, config: WordUpConfig, word: Word) {
+    fun storeWord(context: Context, word: Word) {
+        if (!WordUp.isConfigInitialized())
+            throw IllegalStateException(ErrorConstants.CONFIG_NOT_DEFINED)
+        val config = WordUp.config
         checkConfigForDirectory(config)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -93,10 +95,12 @@ object StorageUtils {
      */
     fun setAsSystemSound(
         context: Context,
-        config: WordUpConfig,
         word: Word,
         soundOptions: Array<String>
     ) {
+        if (!WordUp.isConfigInitialized())
+            throw IllegalStateException(ErrorConstants.CONFIG_NOT_DEFINED)
+        val config = WordUp.config
         checkConfigForDirectory(config)
 
         if (soundOptions.isEmpty())

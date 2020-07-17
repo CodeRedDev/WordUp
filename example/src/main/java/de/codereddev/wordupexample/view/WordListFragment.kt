@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import de.codereddev.wordup.WordUp
-import de.codereddev.wordup.model.database.Word
+import de.codereddev.wordup.database.Word
 import de.codereddev.wordupexample.R
 import de.codereddev.wordupexample.view.adapter.WordListAdapter
 import de.codereddev.wordupexample.viewmodel.WordListViewModel

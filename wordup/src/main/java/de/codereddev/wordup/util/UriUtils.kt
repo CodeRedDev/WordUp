@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
 import de.codereddev.wordup.WordUp
-import de.codereddev.wordup.model.database.Word
+import de.codereddev.wordup.database.Word
 import java.io.File
 
 object UriUtils {

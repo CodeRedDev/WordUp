@@ -3,7 +3,7 @@
 buildscript {
     ext.versions = [
             'compileSdk'         : 29,
-            'minSdk'            : 21,
+            'minSdk'             : 21,
             'targetSdk'          : 29,
             'sourceCompatibility': JavaVersion.VERSION_1_8,
             'targetCompatibility': JavaVersion.VERSION_1_8,
@@ -22,7 +22,6 @@ buildscript {
             androidxTestRunner: 'androidx.test:runner:1.2.0',
             junit             : 'junit:junit:4.12',
             roomRuntime       : "androidx.room:room-runtime:${versions.room}",
-            roomKtx           : "androidx.room:room-ktx:${versions.room}",
             roomKaptCompiler  : "androidx.room:room-compiler:${versions.room}",
             exoplayerCore     : 'com.google.android.exoplayer:exoplayer-core:2.11.1'
     ]

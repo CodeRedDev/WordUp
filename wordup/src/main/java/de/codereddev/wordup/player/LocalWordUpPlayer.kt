@@ -7,7 +7,7 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import de.codereddev.wordup.ErrorConstants
-import de.codereddev.wordup.model.database.Word
+import de.codereddev.wordup.database.Word
 
 class LocalWordUpPlayer(context: Context) : WordUpPlayer {
     private val player = SimpleExoPlayer.Builder(context).build()

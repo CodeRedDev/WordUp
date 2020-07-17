@@ -1,4 +1,4 @@
-package de.codereddev.wordup.model.database
+package de.codereddev.wordup.database
 
 import android.content.Context
 import androidx.room.Database
@@ -8,16 +8,13 @@ import androidx.room.TypeConverters
 
 @Database(entities = [Word::class, Category::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
-abstract class WordUpDatabase : RoomDatabase() {
-
-    abstract fun wordDao(): WordDao
-    abstract fun categoryDao(): CategoryDao
+abstract class StandardWordUpDatabase : RoomDatabase(), WordUpDatabase {
 
     companion object {
         @Volatile
-        private var INSTANCE: WordUpDatabase? = null
+        private var INSTANCE: StandardWordUpDatabase? = null
 
-        fun getInstance(context: Context): WordUpDatabase {
+        fun getInstance(context: Context): StandardWordUpDatabase {
             val tempInstance =
                 INSTANCE
             if (tempInstance != null) {
@@ -26,7 +23,7 @@ abstract class WordUpDatabase : RoomDatabase() {
             synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    WordUpDatabase::class.java,
+                    StandardWordUpDatabase::class.java,
                     "wordup_database"
                 ).build()
                 INSTANCE = instance

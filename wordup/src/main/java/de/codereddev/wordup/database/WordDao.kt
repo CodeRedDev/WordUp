@@ -1,4 +1,4 @@
-package de.codereddev.wordup.model.database
+package de.codereddev.wordup.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -15,39 +15,39 @@ interface WordDao {
      */
 
     @Insert
-    suspend fun insert(word: Word)
+    fun insert(word: Word)
 
     @Insert
-    suspend fun insertBatch(words: List<Word>)
+    fun insertBatch(words: List<Word>)
 
     /*
      * Delete methods
      */
 
     @Query("DELETE FROM Words")
-    suspend fun deleteAll()
+    fun deleteAll()
 
     @Query("DELETE FROM Words WHERE id = :id")
-    suspend fun delete(id: Int)
+    fun delete(id: Int)
 
     @Query("DELETE FROM Words WHERE name = :name")
-    suspend fun deleteByName(name: String)
+    fun deleteByName(name: String)
 
     @Query("DELETE FROM Words WHERE category = :category")
-    suspend fun deleteByCategory(category: Category)
+    fun deleteByCategory(category: Category)
 
     @Query("DELETE FROM Words WHERE name = :name AND category = :category")
-    suspend fun deleteByNameAndCategory(name: String, category: Category)
+    fun deleteByNameAndCategory(name: String, category: Category)
 
     @Transaction
-    suspend fun deleteBatch(wordNames: List<String>) {
+    fun deleteBatch(wordNames: List<String>) {
         wordNames.forEach {
             deleteByName(it)
         }
     }
 
     @Transaction
-    suspend fun deleteBatchByCategory(wordNames: List<String>, category: Category) {
+    fun deleteBatchByCategory(wordNames: List<String>, category: Category) {
         wordNames.forEach {
             deleteByNameAndCategory(it, category)
         }
@@ -58,7 +58,7 @@ interface WordDao {
      */
 
     @Update
-    suspend fun update(word: Word)
+    fun update(word: Word)
 
     /*
      * Getter functions

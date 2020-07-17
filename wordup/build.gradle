@@ -35,7 +35,6 @@ android {
 
 dependencies {
     api deps.roomRuntime
-    api deps.roomKtx
     api deps.androidxLiveData
     api deps.exoplayerCore
 

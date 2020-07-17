@@ -133,7 +133,7 @@ fun shareWord(word: Word) {
 }
 ```
 
-As `UriUtils.getUriForWord()` might do some I/O action it should be called asynchronously.
+As `UriUtils.getUriForWord(Context, Word)` might do some I/O action it should be called asynchronously.
 
 ### Saving words OR setting words as system sound
 
@@ -159,4 +159,16 @@ For setting as system sound only
 Both permissions have to be requested at runtime. For a how-to please see the example app or the Android documentation.
 
 After granted permissions you should be able to call the respective methods from `StorageUtils` without any obvious error.
-The methods are suspending functions so you have to call them inside a coroutine.
+As these methods do a lot of I/O work they should be called asynchronously.
+
+## Customization
+
+To give you more control over what kind of data you want to connect to words, instead of using `StandardWordUpDatabase` you can define your own by implementing `WordUpDatabase`.
+
+```kotlin
+@Database(entities = [Word::class, Category::class, CustomEntity::class], version = 1, exportSchema = false)
+@TypeConverters(Converters::class)
+abstract class CustomWordUpDatabase : RoomDatabase(), WordUpDatabase {
+    [...]
+}
+```

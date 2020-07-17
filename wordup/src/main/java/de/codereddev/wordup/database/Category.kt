@@ -1,4 +1,4 @@
-package de.codereddev.wordup.model.database
+package de.codereddev.wordup.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
