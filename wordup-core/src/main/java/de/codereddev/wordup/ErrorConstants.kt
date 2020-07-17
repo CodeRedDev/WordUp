@@ -15,7 +15,7 @@ internal object ErrorConstants {
     const val STORAGE_SYSTEM_SOUND_OPTION_EMPTY = "No system sound option given."
     const val STORAGE_SYSTEM_SOUND_OPTION =
         "The given system sound option is not valid - The following options are supported: " +
-                "MediaStore.Audio.Media.IS_RINGTONE, *.IS_NOTIFICATION, *.IS_ALARM"
+            "MediaStore.Audio.Media.IS_RINGTONE, *.IS_NOTIFICATION, *.IS_ALARM"
 
     const val INITIALIZER_NO_CATEGORY_SUBFOLDER =
         "With the given WordUpConfig category subfolders are not supported!"

@@ -251,7 +251,7 @@ object StorageUtils {
     private fun getWordDirectoryPath(config: WordUpConfig, word: Word): String {
         val subDirPath = if (config.categoriesEnabled) "/${word.category!!.name}" else ""
         return "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)}" +
-                "/${config.directory}$subDirPath"
+            "/${config.directory}$subDirPath"
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)

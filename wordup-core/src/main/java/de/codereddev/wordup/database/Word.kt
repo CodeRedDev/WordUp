@@ -7,12 +7,14 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "Words",
-    foreignKeys = [ForeignKey(
-        entity = Category::class,
-        parentColumns = ["name"],
-        childColumns = ["category"],
-        onDelete = ForeignKey.CASCADE
-    )],
+    foreignKeys = [
+        ForeignKey(
+            entity = Category::class,
+            parentColumns = ["name"],
+            childColumns = ["category"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
     indices = [Index(value = ["category"])]
 )
 data class Word(

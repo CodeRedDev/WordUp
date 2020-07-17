@@ -21,11 +21,14 @@ class WordUpExampleApp : Application() {
             modules(applicationModule)
         }
 
-        WordUp.init(this, WordUpConfig().apply {
-            categoriesEnabled = true
-            newWordsEnabled = true
-            directory = resources.getString(R.string.app_name)
-        })
+        WordUp.init(
+            this,
+            WordUpConfig().apply {
+                categoriesEnabled = true
+                newWordsEnabled = true
+                directory = resources.getString(R.string.app_name)
+            }
+        )
     }
 
     private val applicationModule = module {
