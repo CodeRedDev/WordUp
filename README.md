@@ -2,23 +2,23 @@
 
 [![Build Status](https://travis-ci.com/CodeRedDev/WordUp.svg?branch=master)](https://travis-ci.com/CodeRedDev/WordUp)
 
-WordUp is an Android open source framework for creating soundboard apps.
+WordUp is an Android open source framework for creating soundboard apps. Continuing we will use the phrase 'word' as a sound item in the soundboard.
 
 Currently WordUp exclusively supports `.mp3` audio files that are locally stored (included in the APK).
 
 WordUp offers a range of easy to use utility functions for use cases like:
 
-- Saving sound files from the app to a public directory
-- Sharing sounds via WhatsApp, Facebook, Mail or other apps that support file sharing
-- Setting sounds as system sound (ringtone, notification or alarm)
+- Saving word files from the app to a public directory
+- Sharing words via WhatsApp, Facebook, Mail or other apps that support file sharing
+- Setting words as system sound (ringtone, notification or alarm)
 
 ## UNDER DEVELOPMENT
 
 While currently under development it should help developers to create their own soundboard app in almost no time.
 
-First steps of this project will be to build a strong local base where sounds will be saved in the apps assets.
+First steps of this project will be to build a strong local base where words will be saved in the apps assets.
 
-Future features should include the ability to host sounds on a server.
+Future features should include the ability to host words on a server.
 
 ## ATTENTION
 
@@ -49,7 +49,7 @@ class WordUpExampleApp : Application() {
     
         WordUp.init(this, WordUpConfig().apply {
             categoriesEnabled = true
-            newSoundsEnabled = true
+            newWordsEnabled = true
             directory = resources.getString(R.string.app_name)
         })
     }
@@ -61,41 +61,41 @@ See `WordUpConfig` for the full range of configuration properties.
 ## How to use
 
 WordUp offers a base to create your own soundboard app. This includes the database structure as well as utilities
-for initializing this database or utilities for common actions like sharing, saving or setting sounds as system sound.
+for initializing this database or utilities for common actions like sharing, saving or setting words as system sound.
 
 See the `example` directory for an example app that uses all of WordUp's API. The example app is designed to
 be a strong example of how to write a soundboard app that is user friendly and has a well functioning architecture.
 Therefore it takes advantage of dependency injection with [Koin](https://github.com/InsertKoinIO/koin) and uses
 the Android MVVM architecture.
 
-### Locally stored sounds
+### Locally stored words
 
-If you prefer to deliver the sound files to your app in the app's APK you should use the `assets` folder
+If you prefer to deliver the word files to your app in the app's APK you should use the `assets` folder
 as it will give you the ability to easily initialize your database by iterating through your assets.
 
 You can use the `LocalDbInitializer` to initialize the database without writing your own code.
-To do so you will have to structure your sounds depending on two use cases:
+To do so you will have to structure your words depending on two use cases:
 
 ##### No categories
 
 - wordup (folder in assets)
-  - Sound 1.mp3 (unique)
+  - Word 1.mp3 (unique)
   - ...
 
 ##### Categories
 
 - wordup (folder in assets)
   - Category 1 (subfolder)
-    - Sound 1.mp3
+    - Word 1.mp3
     - ...
   - Category 2 (subfolder)
-    - Sound 1.mp3 (unique per category)
+    - Word 1.mp3 (unique per category)
     - ...
   - ...
 
-### Sharing sounds
+### Sharing words
 
-For supporting sound sharing you have to define the following `FileProvider` in your app's manifest.
+For supporting word sharing you have to define the following `FileProvider` in your app's manifest.
 
 ```xml
 <provider
@@ -119,27 +119,27 @@ Where `wordup_paths` is defined like this:
 </paths>
 ```
 
-You can then share the sound by firing an `Intent` from a fragment like this:
+You can then share the word by firing an `Intent` from a fragment like this:
 
 ```kotlin
-fun shareSound(sound: Sound) {
-    val uri = UriUtils.getUriForSound(requireContext(), sound)
+fun shareWord(word: Word) {
+    val uri = UriUtils.getUriForWord(requireContext(), word)
     val shareIntent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_STREAM, uri)
         type = "audio/mp3"
     }
-    requireContext().startActivity(Intent.createChooser(shareIntent, getString(R.string.share_sound_via)))
+    requireContext().startActivity(Intent.createChooser(shareIntent, getString(R.string.share_word_via)))
 }
 ```
 
-As `UriUtils.getUriForSound()` might do some I/O action it should be called asynchronously.
+As `UriUtils.getUriForWord()` might do some I/O action it should be called asynchronously.
 
-### Saving sounds OR setting sounds as system sound
+### Saving words OR setting words as system sound
 
 The following could be changing on Android 10+.
 
-While you don't have to request any permissions for sharing sounds, saving or setting sounds
+While you don't have to request any permissions for sharing words, saving or setting words
 as system sound requires permissions (from Android 5.1/6 up to 10).
 
 For saving and setting as system sound

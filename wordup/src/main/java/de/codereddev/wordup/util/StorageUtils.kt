@@ -13,7 +13,7 @@ import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import de.codereddev.wordup.ErrorConstants
 import de.codereddev.wordup.WordUpConfig
-import de.codereddev.wordup.model.database.Sound
+import de.codereddev.wordup.model.database.Word
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -23,7 +23,7 @@ import java.io.InputStream
 
 /**
  * A utility class that provides easy to use functions for saving
- * sound files to a custom public directory, set sounds as system
+ * word files to a custom public directory, set words as system
  * sound or retrieve file handles for internal or external files
  */
 @Suppress("DEPRECATION")
@@ -32,7 +32,7 @@ object StorageUtils {
     const val WORDUP_DIRECTORY = "wordup"
 
     /**
-     * An array of all available options to set a sound as system sound.
+     * An array of all available options to set a word as system sound.
      */
     val SYSTEM_SOUND_OPTIONS = arrayOf(
         MediaStore.Audio.Media.IS_RINGTONE,
@@ -41,7 +41,7 @@ object StorageUtils {
     )
 
     /**
-     * Stores a sound to the directory specified by [WordUpConfig.directory]
+     * Stores a word to the directory specified by [WordUpConfig.directory]
      * inside the public music directory.
      *
      * Be sure to grant [Manifest.permission.WRITE_EXTERNAL_STORAGE] for build
@@ -49,35 +49,35 @@ object StorageUtils {
      *
      * @throws IllegalArgumentException if directory was not defined in WordUpConfig
      */
-    suspend fun storeSound(context: Context, config: WordUpConfig, sound: Sound) =
+    suspend fun storeWord(context: Context, config: WordUpConfig, word: Word) =
         withContext(Dispatchers.IO) {
             checkConfigForDirectory(config)
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                storeSoundLegacy(context, config, sound)
+                storeWordLegacy(context, config, word)
             } else {
-                storeSoundQ(context, config, sound)
+                storeWordQ(context, config, word)
             }
         }
 
-    fun storeSoundInCache(context: Context, sound: Sound) {
+    fun storeWordInCache(context: Context, word: Word) {
         val dir = File(context.cacheDir, WORDUP_DIRECTORY)
         dir.mkdirs()
-        val file = File(dir, "${sound.name}.mp3")
+        val file = File(dir, "${word.name}.mp3")
         if (file.exists())
             return
 
         FileOutputStream(file).use { output ->
-            getAssetInputStream(context, sound).use { input ->
+            getAssetInputStream(context, word).use { input ->
                 input.copyTo(output)
             }
         }
     }
 
     /**
-     * Sets a sound as standard system sound for the defined options.
+     * Sets a word as standard system sound for the defined options.
      *
-     * If the sound isn't stored yet it will be stored.
+     * If the word isn't stored yet it will be stored.
      *
      * Be sure to check and request [Manifest.permission.WRITE_SETTINGS]
      * before calling this method!
@@ -86,12 +86,12 @@ object StorageUtils {
      * versions prior to [Build.VERSION_CODES.Q].
      *
      * @throws IllegalArgumentException if directory was not defined in WordUpConfig
-     * @see [storeSound]
+     * @see [storeWord]
      */
     suspend fun setAsSystemSound(
         context: Context,
         config: WordUpConfig,
-        sound: Sound,
+        word: Word,
         soundOptions: Array<String>
     ) = withContext(Dispatchers.IO) {
         checkConfigForDirectory(config)
@@ -104,9 +104,9 @@ object StorageUtils {
         }
 
         val contentUri = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            storeSoundLegacy(context, config, sound)
+            storeWordLegacy(context, config, word)
         } else {
-            storeSoundQ(context, config, sound)
+            storeWordQ(context, config, word)
         }
 
         val details = ContentValues()
@@ -127,31 +127,31 @@ object StorageUtils {
     }
 
     /**
-     * @param sound A locally stored sound.
+     * @param word A locally stored word.
      * @return An open [AssetFileDescriptor] that has to be closed after use.
      *
-     * @throws IllegalArgumentException If a sound is not locally stored.
+     * @throws IllegalArgumentException If a word is not locally stored.
      */
-    fun getAssetInputStream(context: Context, sound: Sound): InputStream {
-        if (sound.isNetworkResource)
+    fun getAssetInputStream(context: Context, word: Word): InputStream {
+        if (word.isNetworkResource)
             throw IllegalArgumentException(ErrorConstants.STORAGE_ASSET_INPUT_STREAM)
 
-        return context.assets.open(sound.path)
+        return context.assets.open(word.path)
     }
 
     /**
-     * Function to retrieve an [AssetFileDescriptor] that can be used e.g. for playing sounds.
+     * Function to retrieve an [AssetFileDescriptor] that can be used e.g. for playing words.
      *
-     * @param sound A locally stored sound.
+     * @param word A locally stored word.
      * @return An open [AssetFileDescriptor] that has to be closed after use.
      *
-     * @throws IllegalArgumentException If a sound is not locally stored.
+     * @throws IllegalArgumentException If a word is not locally stored.
      */
-    fun getAssetFd(context: Context, sound: Sound): AssetFileDescriptor {
-        if (sound.isNetworkResource)
+    fun getAssetFd(context: Context, word: Word): AssetFileDescriptor {
+        if (word.isNetworkResource)
             throw IllegalArgumentException(ErrorConstants.STORAGE_ASSET_FD)
 
-        return context.assets.openFd(sound.path)
+        return context.assets.openFd(word.path)
     }
 
     private fun checkConfigForDirectory(config: WordUpConfig) {
@@ -160,22 +160,22 @@ object StorageUtils {
     }
 
     /**
-     * Stores a sound to [Environment.DIRECTORY_MUSIC] and returns its content URI.
+     * Stores a word to [Environment.DIRECTORY_MUSIC] and returns its content URI.
      *
-     * @return The sounds content URI on external storage
+     * @return The word's content URI on external storage
      */
-    private fun storeSoundLegacy(context: Context, config: WordUpConfig, sound: Sound): Uri {
-        val dir = File(getSoundDirectoryPath(config, sound))
+    private fun storeWordLegacy(context: Context, config: WordUpConfig, word: Word): Uri {
+        val dir = File(getWordDirectoryPath(config, word))
         dir.mkdirs()
-        val file = File(dir, "${sound.name}.mp3")
+        val file = File(dir, "${word.name}.mp3")
 
         FileOutputStream(file).use { output ->
-            getAssetInputStream(context, sound).use { input ->
+            getAssetInputStream(context, word).use { input ->
                 input.copyTo(output)
             }
         }
 
-        var contentUri = getExistingMediaUriLegacy(context, config, sound)
+        var contentUri = getExistingMediaUriLegacy(context, config, word)
         if (contentUri != null)
             return contentUri
 
@@ -185,9 +185,9 @@ object StorageUtils {
             MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
 
         details.apply {
-            put(MediaStore.Audio.Media.DISPLAY_NAME, "${sound.name}.mp3")
+            put(MediaStore.Audio.Media.DISPLAY_NAME, "${word.name}.mp3")
             put(MediaStore.Audio.Media.MIME_TYPE, "audio/mp3")
-            put(MediaStore.Audio.Media.TITLE, sound.name)
+            put(MediaStore.Audio.Media.TITLE, word.name)
             put(MediaStore.Audio.Media.DATA, file.absolutePath)
             put(MediaStore.Audio.Media.ARTIST, config.directory)
             put(MediaStore.Audio.Media.ALBUM, config.directory)
@@ -201,9 +201,9 @@ object StorageUtils {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun storeSoundQ(context: Context, config: WordUpConfig, sound: Sound): Uri {
+    private fun storeWordQ(context: Context, config: WordUpConfig, word: Word): Uri {
         val resolver = context.contentResolver
-        var contentUri = getExistingMediaUriQ(context, config, sound)
+        var contentUri = getExistingMediaUriQ(context, config, word)
         val details = ContentValues()
         details.put(MediaStore.Audio.Media.IS_PENDING, 1)
         if (contentUri == null) {
@@ -211,10 +211,10 @@ object StorageUtils {
                 MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
 
             details.apply {
-                put(MediaStore.Audio.Media.DISPLAY_NAME, "${sound.name}.mp3")
+                put(MediaStore.Audio.Media.DISPLAY_NAME, "${word.name}.mp3")
                 put(MediaStore.Audio.Media.MIME_TYPE, "audio/mp3")
-                put(MediaStore.Audio.Media.TITLE, sound.name)
-                put(MediaStore.Audio.Media.RELATIVE_PATH, getRelativePathQ(config, sound))
+                put(MediaStore.Audio.Media.TITLE, word.name)
+                put(MediaStore.Audio.Media.RELATIVE_PATH, getRelativePathQ(config, word))
                 put(MediaStore.Audio.Media.ARTIST, config.directory)
                 put(MediaStore.Audio.Media.ALBUM, config.directory)
                 put(MediaStore.Audio.Media.IS_MUSIC, true)
@@ -228,7 +228,7 @@ object StorageUtils {
 
         resolver.openFileDescriptor(contentUri, "w", null)!!.use { mediaFd ->
             FileOutputStream(mediaFd.fileDescriptor).use { output ->
-                getAssetInputStream(context, sound).use { input ->
+                getAssetInputStream(context, word).use { input ->
                     input.copyTo(output)
                 }
             }
@@ -241,22 +241,22 @@ object StorageUtils {
         return contentUri
     }
 
-    private fun getSoundDirectoryPath(config: WordUpConfig, sound: Sound): String {
-        val subDirPath = if (config.categoriesEnabled) "/${sound.category!!.name}" else ""
+    private fun getWordDirectoryPath(config: WordUpConfig, word: Word): String {
+        val subDirPath = if (config.categoriesEnabled) "/${word.category!!.name}" else ""
         return "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)}" +
                 "/${config.directory}$subDirPath"
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun getRelativePathQ(config: WordUpConfig, sound: Sound): String {
-        val subDirPath = if (config.categoriesEnabled) "/${sound.category!!.name}" else ""
+    private fun getRelativePathQ(config: WordUpConfig, word: Word): String {
+        val subDirPath = if (config.categoriesEnabled) "/${word.category!!.name}" else ""
         return "${Environment.DIRECTORY_MUSIC}/${config.directory}$subDirPath"
     }
 
     private fun getExistingMediaUriLegacy(
         context: Context,
         config: WordUpConfig,
-        sound: Sound
+        word: Word
     ): Uri? {
         val resolver = context.contentResolver
 
@@ -276,14 +276,14 @@ object StorageUtils {
             val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
             val nameCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
             val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-            val expectedPath = "${getSoundDirectoryPath(config, sound)}/${sound.name}.mp3"
+            val expectedPath = "${getWordDirectoryPath(config, word)}/${word.name}.mp3"
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idCol)
                 val name = cursor.getString(nameCol)
                 val path = cursor.getString(pathCol)
 
-                if (name == "${sound.name}.mp3" && path == expectedPath) {
+                if (name == "${word.name}.mp3" && path == expectedPath) {
                     return ContentUris.withAppendedId(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         id
@@ -296,7 +296,7 @@ object StorageUtils {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun getExistingMediaUriQ(context: Context, config: WordUpConfig, sound: Sound): Uri? {
+    private fun getExistingMediaUriQ(context: Context, config: WordUpConfig, word: Word): Uri? {
         val resolver = context.contentResolver
 
         val projection = arrayOf(
@@ -315,14 +315,14 @@ object StorageUtils {
             val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
             val nameCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
             val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.RELATIVE_PATH)
-            val expectedPath = getRelativePathQ(config, sound)
+            val expectedPath = getRelativePathQ(config, word)
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idCol)
                 val name = cursor.getString(nameCol)
                 val path = cursor.getString(pathCol)
 
-                if (name == "${sound.name}.mp3" && path == expectedPath) {
+                if (name == "${word.name}.mp3" && path == expectedPath) {
                     return ContentUris.withAppendedId(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         id

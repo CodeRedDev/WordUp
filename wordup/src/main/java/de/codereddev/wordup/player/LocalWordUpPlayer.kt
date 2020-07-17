@@ -7,16 +7,16 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import de.codereddev.wordup.ErrorConstants
-import de.codereddev.wordup.model.database.Sound
+import de.codereddev.wordup.model.database.Word
 
 class LocalWordUpPlayer(context: Context) : WordUpPlayer {
     private val player = SimpleExoPlayer.Builder(context).build()
 
-    override fun play(context: Context, sound: Sound) {
-        if (sound.isNetworkResource)
+    override fun play(context: Context, word: Word) {
+        if (word.isNetworkResource)
             throw IllegalArgumentException(ErrorConstants.PLAYER_LOCAL_NO_LOCAL)
 
-        val mediaSource = buildMediaSource(context, sound)
+        val mediaSource = buildMediaSource(context, word)
         player.playWhenReady = true
         player.prepare(mediaSource)
     }
@@ -37,10 +37,10 @@ class LocalWordUpPlayer(context: Context) : WordUpPlayer {
         player.release()
     }
 
-    private fun buildMediaSource(context: Context, sound: Sound): MediaSource {
+    private fun buildMediaSource(context: Context, word: Word): MediaSource {
         return ProgressiveMediaSource.Factory(
             DefaultDataSourceFactory(context, USER_AGENT)
-        ).createMediaSource(Uri.parse("asset:///${sound.path}"))
+        ).createMediaSource(Uri.parse("asset:///${word.path}"))
     }
 
     companion object {

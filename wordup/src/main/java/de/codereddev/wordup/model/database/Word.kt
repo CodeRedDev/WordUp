@@ -6,7 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "Sounds",
+    tableName = "Words",
     foreignKeys = [ForeignKey(
         entity = Category::class,
         parentColumns = ["name"],
@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
     )],
     indices = [Index(value = ["category"])]
 )
-data class Sound(
+data class Word(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     var name: String,

@@ -11,7 +11,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, SoundListFragment())
+            .replace(R.id.fragment_container, WordListFragment())
             .commit()
     }
 }

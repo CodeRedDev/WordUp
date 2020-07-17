@@ -8,7 +8,7 @@ import androidx.core.content.FileProvider
 class WordUpConfig {
 
     /**
-     * Defines if sharing of sounds is enabled.
+     * Defines if sharing of words is enabled.
      *
      * If this is true [WordUp] will throw an exception
      * if no [FileProvider] is defined in manifest.
@@ -16,7 +16,7 @@ class WordUpConfig {
     var sharingEnabled = true
 
     /**
-     * Defines if the sounds should be categorized.
+     * Defines if the words should be categorized.
      *
      * If this is true it will force you to organize your
      * assets and network resources to support categories.
@@ -26,10 +26,10 @@ class WordUpConfig {
     /**
      * Defines the behaviour of database intializers offered by WordUp.
      */
-    var newSoundsEnabled: Boolean = true
+    var newWordsEnabled: Boolean = true
 
     /**
-     * Defines a directory name for storing sounds.
+     * Defines a directory name for storing words.
      */
     var directory: String? = null
 }
