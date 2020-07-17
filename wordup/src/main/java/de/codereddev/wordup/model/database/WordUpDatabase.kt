@@ -6,11 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [Sound::class, Category::class], version = 1, exportSchema = false)
+@Database(entities = [Word::class, Category::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class WordUpDatabase : RoomDatabase() {
 
-    abstract fun soundDao(): SoundDao
+    abstract fun wordDao(): WordDao
     abstract fun categoryDao(): CategoryDao
 
     companion object {

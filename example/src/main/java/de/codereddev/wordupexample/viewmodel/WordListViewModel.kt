@@ -12,8 +12,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.codereddev.wordup.WordUp
-import de.codereddev.wordup.model.database.Sound
-import de.codereddev.wordup.model.database.SoundDao
+import de.codereddev.wordup.model.database.Word
+import de.codereddev.wordup.model.database.WordDao
 import de.codereddev.wordup.player.LocalWordUpPlayer
 import de.codereddev.wordup.util.StorageUtils
 import de.codereddev.wordup.util.UriUtils
@@ -21,28 +21,28 @@ import de.codereddev.wordupexample.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class SoundListViewModel : ViewModel() {
-    abstract val soundList: MutableLiveData<List<Sound>>
+abstract class WordListViewModel : ViewModel() {
+    abstract val wordList: MutableLiveData<List<Word>>
     abstract val events: MutableLiveData<Event>
     abstract val intents: MutableLiveData<Intent>
     abstract val permissionRequests: MutableLiveData<PermissionRequest>
 
-    abstract fun onSoundClick(sound: Sound)
+    abstract fun onWordClick(word: Word)
 
-    abstract fun onMenuItemSelected(sound: Sound, itemId: Int)
+    abstract fun onMenuItemSelected(word: Word, itemId: Int)
 
     abstract fun onPermissionResult(permissionRequest: PermissionRequest, granted: Boolean)
 
     enum class Event {
         PERMISSION_WRITE_SETTINGS,
         SYSTEM_SOUND_SET,
-        SOUND_SAVED
+        WORD_SAVED
     }
 
     data class PermissionRequest(
         val permission: String,
         val action: Int,
-        val sound: Sound? = null,
+        val word: Word? = null,
         val systemSoundOption: String? = null
     )
 
@@ -52,13 +52,13 @@ abstract class SoundListViewModel : ViewModel() {
     }
 }
 
-class SoundListViewModelImpl(
+class WordListViewModelImpl(
     private val context: Context,
-    private val soundDao: SoundDao
-) : SoundListViewModel() {
-    override val soundList: MutableLiveData<List<Sound>> = MutableLiveData()
-    private val soundListObserver: Observer<List<Sound>> = Observer {
-        soundList.postValue(it)
+    private val wordDao: WordDao
+) : WordListViewModel() {
+    override val wordList: MutableLiveData<List<Word>> = MutableLiveData()
+    private val wordListObserver: Observer<List<Word>> = Observer {
+        wordList.postValue(it)
     }
     override val events: MutableLiveData<Event> = MutableLiveData()
     override val intents: MutableLiveData<Intent> = MutableLiveData()
@@ -67,14 +67,14 @@ class SoundListViewModelImpl(
     private val wordupPlayer = LocalWordUpPlayer(context)
 
     init {
-        soundDao.getAllSoundsLive().observeForever(soundListObserver)
+        wordDao.getAllWordsLive().observeForever(wordListObserver)
     }
 
-    override fun onMenuItemSelected(sound: Sound, itemId: Int) {
+    override fun onMenuItemSelected(word: Word, itemId: Int) {
         when (itemId) {
             R.id.action_share -> {
                 viewModelScope.launch {
-                    val uri = UriUtils.getUriForSound(context, sound)
+                    val uri = UriUtils.getUriForWord(context, word)
                     val shareIntent = Intent().apply {
                         action = Intent.ACTION_SEND
                         putExtra(Intent.EXTRA_STREAM, uri)
@@ -88,7 +88,7 @@ class SoundListViewModelImpl(
                     PermissionRequest(
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
                         ACTION_SAVE,
-                        sound
+                        word
                     )
                 )
             }
@@ -105,7 +105,7 @@ class SoundListViewModelImpl(
                         PermissionRequest(
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             ACTION_SET_SYSTEM_SOUND,
-                            sound,
+                            word,
                             option
                         )
                     )
@@ -116,8 +116,8 @@ class SoundListViewModelImpl(
         }
     }
 
-    override fun onSoundClick(sound: Sound) {
-        wordupPlayer.play(context, sound)
+    override fun onWordClick(word: Word) {
+        wordupPlayer.play(context, word)
     }
 
     @SuppressLint("MissingPermission")
@@ -126,8 +126,8 @@ class SoundListViewModelImpl(
             ACTION_SAVE -> {
                 if (granted) {
                     viewModelScope.launch(Dispatchers.Main) {
-                        StorageUtils.storeSound(context, WordUp.config, permissionRequest.sound!!)
-                        events.postValue(Event.SOUND_SAVED)
+                        StorageUtils.storeWord(context, WordUp.config, permissionRequest.word!!)
+                        events.postValue(Event.WORD_SAVED)
                     }
                 }
             }
@@ -137,7 +137,7 @@ class SoundListViewModelImpl(
                         StorageUtils.setAsSystemSound(
                             context,
                             WordUp.config,
-                            permissionRequest.sound!!,
+                            permissionRequest.word!!,
                             arrayOf(permissionRequest.systemSoundOption!!)
                         )
                         events.postValue(Event.SYSTEM_SOUND_SET)
@@ -149,7 +149,7 @@ class SoundListViewModelImpl(
 
     override fun onCleared() {
         super.onCleared()
-        soundDao.getAllSoundsLive().removeObserver(soundListObserver)
+        wordDao.getAllWordsLive().removeObserver(wordListObserver)
         wordupPlayer.release()
     }
 }

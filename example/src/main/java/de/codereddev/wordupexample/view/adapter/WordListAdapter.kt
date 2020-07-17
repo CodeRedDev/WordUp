@@ -5,51 +5,51 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import de.codereddev.wordup.model.database.Sound
+import de.codereddev.wordup.model.database.Word
 import de.codereddev.wordupexample.R
 
-class SoundListAdapter : RecyclerView.Adapter<SoundListAdapter.ViewHolder>() {
+class WordListAdapter : RecyclerView.Adapter<WordListAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val name: TextView = itemView.findViewById(R.id.sound_name)
+        val name: TextView = itemView.findViewById(R.id.word_name)
     }
 
     interface ItemClickListener {
-        fun onItemClicked(sound: Sound)
+        fun onItemClicked(word: Word)
 
-        fun onItemLongClick(sound: Sound, view: View)
+        fun onItemLongClick(word: Word, view: View)
     }
 
-    private val soundList: MutableList<Sound> = mutableListOf()
+    private val wordList: MutableList<Word> = mutableListOf()
     var itemClickListener: ItemClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.sound_item, parent, false)
+            .inflate(R.layout.word_item, parent, false)
         return ViewHolder(itemView)
     }
 
     override fun getItemCount(): Int {
-        return soundList.size
+        return wordList.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val sound = soundList[position]
-        holder.name.text = sound.name
+        val word = wordList[position]
+        holder.name.text = word.name
 
         holder.itemView.setOnClickListener {
-            itemClickListener?.onItemClicked(sound)
+            itemClickListener?.onItemClicked(word)
         }
 
         holder.itemView.setOnLongClickListener {
-            itemClickListener?.onItemLongClick(sound, it)
+            itemClickListener?.onItemLongClick(word, it)
             true
         }
     }
 
-    fun setDataset(list: List<Sound>) {
-        soundList.clear()
-        soundList.addAll(list)
+    fun setDataset(list: List<Word>) {
+        wordList.clear()
+        wordList.addAll(list)
         notifyDataSetChanged()
     }
 }

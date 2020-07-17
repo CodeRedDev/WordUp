@@ -4,8 +4,8 @@ import android.app.Application
 import de.codereddev.wordup.WordUp
 import de.codereddev.wordup.WordUpConfig
 import de.codereddev.wordup.model.database.WordUpDatabase
-import de.codereddev.wordupexample.viewmodel.SoundListViewModel
-import de.codereddev.wordupexample.viewmodel.SoundListViewModelImpl
+import de.codereddev.wordupexample.viewmodel.WordListViewModel
+import de.codereddev.wordupexample.viewmodel.WordListViewModelImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -23,7 +23,7 @@ class WordUpExampleApp : Application() {
 
         WordUp.init(this, WordUpConfig().apply {
             categoriesEnabled = true
-            newSoundsEnabled = true
+            newWordsEnabled = true
             directory = resources.getString(R.string.app_name)
         })
     }
@@ -35,15 +35,15 @@ class WordUpExampleApp : Application() {
         }
 
         single {
-            get<WordUpDatabase>().soundDao()
+            get<WordUpDatabase>().wordDao()
         }
 
         single {
             get<WordUpDatabase>().categoryDao()
         }
 
-        viewModel<SoundListViewModel> {
-            SoundListViewModelImpl(get(), get())
+        viewModel<WordListViewModel> {
+            WordListViewModelImpl(get(), get())
         }
     }
 }

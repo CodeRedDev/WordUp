@@ -15,42 +15,42 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import de.codereddev.wordup.WordUp
-import de.codereddev.wordup.model.database.Sound
+import de.codereddev.wordup.model.database.Word
 import de.codereddev.wordupexample.R
-import de.codereddev.wordupexample.view.adapter.SoundListAdapter
-import de.codereddev.wordupexample.viewmodel.SoundListViewModel
-import kotlinx.android.synthetic.main.fragment_sound_list.view.*
+import de.codereddev.wordupexample.view.adapter.WordListAdapter
+import de.codereddev.wordupexample.viewmodel.WordListViewModel
+import kotlinx.android.synthetic.main.fragment_word_list.view.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SoundListFragment : Fragment() {
-    private val viewModel: SoundListViewModel by viewModel()
-    private val soundListAdapter = SoundListAdapter()
+class WordListFragment : Fragment() {
+    private val viewModel: WordListViewModel by viewModel()
+    private val wordListAdapter = WordListAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val rootView = inflater.inflate(R.layout.fragment_sound_list, container, false)
+        val rootView = inflater.inflate(R.layout.fragment_word_list, container, false)
 
-        soundListAdapter.itemClickListener = object : SoundListAdapter.ItemClickListener {
-            override fun onItemClicked(sound: Sound) {
-                viewModel.onSoundClick(sound)
+        wordListAdapter.itemClickListener = object : WordListAdapter.ItemClickListener {
+            override fun onItemClicked(word: Word) {
+                viewModel.onWordClick(word)
             }
 
-            override fun onItemLongClick(sound: Sound, view: View) {
+            override fun onItemLongClick(word: Word, view: View) {
                 val popup = PopupMenu(requireContext(), view)
-                popup.inflate(R.menu.sound_options_menu)
+                popup.inflate(R.menu.word_options_menu)
                 popup.setOnMenuItemClickListener {
-                    viewModel.onMenuItemSelected(sound, it.itemId)
+                    viewModel.onMenuItemSelected(word, it.itemId)
                     true
                 }
                 popup.show()
             }
         }
 
-        rootView.sound_list_rv.apply {
-            adapter = soundListAdapter
+        rootView.word_list_rv.apply {
+            adapter = wordListAdapter
             layoutManager = GridLayoutManager(context, 3)
         }
 
@@ -60,13 +60,13 @@ class SoundListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.soundList.observe(viewLifecycleOwner, Observer {
-            soundListAdapter.setDataset(it)
+        viewModel.wordList.observe(viewLifecycleOwner, Observer {
+            wordListAdapter.setDataset(it)
         })
 
         viewModel.events.observe(viewLifecycleOwner, Observer {
             when (it) {
-                SoundListViewModel.Event.PERMISSION_WRITE_SETTINGS -> {
+                WordListViewModel.Event.PERMISSION_WRITE_SETTINGS -> {
                     val intent = Intent().apply {
                         action = android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS
                         data = Uri.parse("package:${requireContext().packageName}")
@@ -74,11 +74,11 @@ class SoundListFragment : Fragment() {
                     }
                     startActivity(intent)
                 }
-                SoundListViewModel.Event.SYSTEM_SOUND_SET -> {
+                WordListViewModel.Event.SYSTEM_SOUND_SET -> {
                     Toast.makeText(context, R.string.system_sound_set, Toast.LENGTH_SHORT).show()
                 }
-                SoundListViewModel.Event.SOUND_SAVED -> {
-                    val text = getString(R.string.sound_saved, WordUp.config.directory)
+                WordListViewModel.Event.WORD_SAVED -> {
+                    val text = getString(R.string.word_saved, WordUp.config.directory)
                     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
                 }
                 else -> {
@@ -90,7 +90,7 @@ class SoundListFragment : Fragment() {
             requireContext().startActivity(
                 Intent.createChooser(
                     it,
-                    getString(R.string.share_sound_via)
+                    getString(R.string.share_word_via)
                 )
             )
         })

@@ -5,40 +5,40 @@ import de.codereddev.wordup.ErrorConstants
 import de.codereddev.wordup.WordUp
 import de.codereddev.wordup.WordUpConfig
 import de.codereddev.wordup.model.database.Category
-import de.codereddev.wordup.model.database.Sound
+import de.codereddev.wordup.model.database.Word
 import de.codereddev.wordup.model.database.WordUpDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * This helps to initialize the [WordUpDatabase] with locally stored sounds from assets.
+ * This helps to initialize the [WordUpDatabase] with locally stored words from assets.
  * This will also update the database based on the files
  * you delete or add to the assets/wordup folder.
  *
  * The initializing process uses the [WordUpConfig] given to [WordUp.init].
  * If non is given it will throw an [IllegalStateException].
  *
- * If [WordUpConfig.categoriesEnabled] is false sounds should be
+ * If [WordUpConfig.categoriesEnabled] is false words should be
  * organized matching the following path:
- * assets/wordup/sound.mp3
+ * assets/wordup/word.mp3
  *
- * Renamed sounds will be processed as new sounds i.e. the old entry will
- * be deleted and the sound will be re-added with the new name.
+ * Renamed words will be processed as new words i.e. the old entry will
+ * be deleted and the word will be re-added with the new name.
  *
- * If [WordUpConfig.categoriesEnabled] is true sounds should instead be
+ * If [WordUpConfig.categoriesEnabled] is true words should instead be
  * organized matching the following path:
- * assets/wordup/category-subfolder/sound.mp3
+ * assets/wordup/category-subfolder/word.mp3
  *
  * Renamed categories will be processed as new categories i.e the old category
- * and all sounds referencing this category will be deleted and the category
- * plus all its sounds will be re-added with the new name.
+ * and all words referencing this category will be deleted and the category
+ * plus all its words will be re-added with the new name.
  *
- * Sounds in categories that were not edited will behave like non-category sounds.
+ * Words in categories that were not edited will behave like non-category words.
  *
- * If [WordUpConfig.newSoundsEnabled] is true newly added sounds will be marked as such.
+ * If [WordUpConfig.newWordsEnabled] is true newly added words will be marked as such.
  */
 class LocalDbInitializer(database: WordUpDatabase) {
-    private val soundDao = database.soundDao()
+    private val wordDao = database.wordDao()
     private val categoryDao = database.categoryDao()
 
     /**
@@ -60,31 +60,31 @@ class LocalDbInitializer(database: WordUpDatabase) {
 
     private suspend fun initializeWithoutCategory(context: Context, config: WordUpConfig) =
         withContext(Dispatchers.IO) {
-            val curSoundNames = soundDao.getAllSounds().map { it.name }
+            val curWordNames = wordDao.getAllWords().map { it.name }
             val assetList = getWordUpAssets(context)
             if (assetList.any { !it.endsWith(".mp3") })
                 throw IllegalArgumentException(ErrorConstants.INITIALIZER_NO_CATEGORY_SUBFOLDER)
 
             val fileList = assetList.map { it.replace(".mp3", "") }
 
-            curSoundNames.subtract(fileList).toList().let {
+            curWordNames.subtract(fileList).toList().let {
                 if (it.isNotEmpty()) {
-                    soundDao.deleteBatch(it)
+                    wordDao.deleteBatch(it)
                 }
             }
 
-            val soundList = mutableListOf<Sound>()
-            fileList.subtract(curSoundNames).forEach { new ->
-                soundList.add(
-                    Sound(
+            val wordList = mutableListOf<Word>()
+            fileList.subtract(curWordNames).forEach { new ->
+                wordList.add(
+                    Word(
                         name = new,
                         path = "$PATH_WORDUP/$new.mp3",
-                        isNew = config.newSoundsEnabled
+                        isNew = config.newWordsEnabled
                     )
                 )
             }
-            if (soundList.isNotEmpty()) {
-                soundDao.insertBatch(soundList)
+            if (wordList.isNotEmpty()) {
+                wordDao.insertBatch(wordList)
             }
         }
 
@@ -100,7 +100,7 @@ class LocalDbInitializer(database: WordUpDatabase) {
 
             /*
              * Category was deleted or renamed.
-             * All sounds that have a reference to this category are not valid anymore
+             * All words that have a reference to this category are not valid anymore
              * and will be deleted in a cascade by the database.
              */
             curCategories.subtract(dirList).toList().let {
@@ -113,7 +113,7 @@ class LocalDbInitializer(database: WordUpDatabase) {
 
             /*
              * Category was added.
-             * All sounds of this category are new.
+             * All words of this category are new.
              */
             dirList.subtract(curCategories).forEach { newCategory ->
                 processedDirs.add(newCategory)
@@ -124,30 +124,30 @@ class LocalDbInitializer(database: WordUpDatabase) {
                     throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_SUBFOLDER)
 
                 val fileList = assetFileList.map { it.replace(".mp3", "") }
-                val soundList = mutableListOf<Sound>()
+                val wordList = mutableListOf<Word>()
                 fileList.forEach { name ->
-                    soundList.add(
-                        Sound(
+                    wordList.add(
+                        Word(
                             name = name,
                             path = "$PATH_WORDUP/$newCategory/$name.mp3",
-                            isNew = config.newSoundsEnabled,
+                            isNew = config.newWordsEnabled,
                             category = category
                         )
                     )
                 }
-                if (soundList.isNotEmpty()) {
-                    soundDao.insertBatch(soundList)
+                if (wordList.isNotEmpty()) {
+                    wordDao.insertBatch(wordList)
                 }
             }
 
             /*
              * Checking old categories
-             * Sounds can be deleted, renamed or added.
-             * Renamed sounds are equal to added sounds.
+             * Words can be deleted, renamed or added.
+             * Renamed words are equal to added words.
              */
             dirList.subtract(processedDirs).forEach { oldCategory ->
                 val category = Category(oldCategory)
-                val curSounds = soundDao.getSoundsFromCategory(category).map { it.name }
+                val curWords = wordDao.getWordsFromCategory(category).map { it.name }
 
                 val assetFileList = getWordUpCategoryAssets(context, oldCategory)
                 if (assetFileList.any { !it.endsWith(".mp3") })
@@ -155,27 +155,27 @@ class LocalDbInitializer(database: WordUpDatabase) {
 
                 val fileList = assetFileList.map { it.replace(".mp3", "") }
 
-                // Deleted sounds
-                curSounds.subtract(fileList).toList().let {
+                // Deleted words
+                curWords.subtract(fileList).toList().let {
                     if (it.isNotEmpty()) {
-                        soundDao.deleteBatchByCategory(it, category)
+                        wordDao.deleteBatchByCategory(it, category)
                     }
                 }
 
-                // New sounds
-                val soundList = mutableListOf<Sound>()
-                fileList.subtract(curSounds).forEach { newSound ->
-                    soundList.add(
-                        Sound(
-                            name = newSound,
-                            path = "$PATH_WORDUP/$oldCategory/$newSound.mp3",
-                            isNew = config.newSoundsEnabled,
+                // New words
+                val wordList = mutableListOf<Word>()
+                fileList.subtract(curWords).forEach { newWord ->
+                    wordList.add(
+                        Word(
+                            name = newWord,
+                            path = "$PATH_WORDUP/$oldCategory/$newWord.mp3",
+                            isNew = config.newWordsEnabled,
                             category = category
                         )
                     )
                 }
-                if (soundList.isNotEmpty()) {
-                    soundDao.insertBatch(soundList)
+                if (wordList.isNotEmpty()) {
+                    wordDao.insertBatch(wordList)
                 }
             }
         }

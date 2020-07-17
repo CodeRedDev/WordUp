@@ -1,17 +1,17 @@
 package de.codereddev.wordup.player
 
 import android.content.Context
-import de.codereddev.wordup.model.database.Sound
+import de.codereddev.wordup.model.database.Word
 
 interface WordUpPlayer {
 
     /**
-     * Prepares the player for sound playback and starts it.
+     * Prepares the player for word playback and starts it.
      *
      * @param context Context for resource gathering
-     * @param sound The sound to play
+     * @param word The word to play
      */
-    fun play(context: Context, sound: Sound)
+    fun play(context: Context, word: Word)
 
     fun pause()
 
