@@ -125,7 +125,7 @@ class WordListViewModelImpl(
         when (permissionRequest.action) {
             ACTION_SAVE -> {
                 if (granted) {
-                    viewModelScope.launch(Dispatchers.Main) {
+                    viewModelScope.launch(Dispatchers.IO) {
                         StorageUtils.storeWord(context, WordUp.config, permissionRequest.word!!)
                         events.postValue(Event.WORD_SAVED)
                     }
@@ -133,7 +133,7 @@ class WordListViewModelImpl(
             }
             ACTION_SET_SYSTEM_SOUND -> {
                 if (granted) {
-                    viewModelScope.launch(Dispatchers.Main) {
+                    viewModelScope.launch(Dispatchers.IO) {
                         StorageUtils.setAsSystemSound(
                             context,
                             WordUp.config,
