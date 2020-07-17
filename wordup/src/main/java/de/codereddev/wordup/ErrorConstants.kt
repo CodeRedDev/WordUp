@@ -5,8 +5,7 @@ internal object ErrorConstants {
     const val CONFIG_NOT_DEFINED = "WordUp not configured!"
     const val CONFIG_DIRECTORY_NOT_DEFINED = "A directory must be set in WordUpConfig!"
 
-    const val PROVIDER_CONTEXT = "WordUpProvider not attached to a context."
-    const val PROVIDER_SOUND_ID = "Uri does not contain sound id."
+    const val FILE_PROVIDER_MISSING = "FileProvider definition in manifest missing or incorrect!"
 
     const val STORAGE_ASSET_FD =
         "AssetFileDescriptor can only be retrieved from a locally stored sound!"

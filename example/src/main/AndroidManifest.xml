@@ -25,10 +25,14 @@
         </activity>
 
         <provider
-            android:name="de.codereddev.wordup.provider.WordUpProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="${packageName}.wordup.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true" />
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/wordup_paths" />
+        </provider>
 
     </application>
 </manifest>

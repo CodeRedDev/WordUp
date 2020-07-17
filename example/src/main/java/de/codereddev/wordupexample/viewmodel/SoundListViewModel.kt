@@ -15,8 +15,8 @@ import de.codereddev.wordup.WordUp
 import de.codereddev.wordup.model.database.Sound
 import de.codereddev.wordup.model.database.SoundDao
 import de.codereddev.wordup.player.LocalWordUpPlayer
-import de.codereddev.wordup.provider.WordUpProvider
 import de.codereddev.wordup.util.StorageUtils
+import de.codereddev.wordup.util.UriUtils
 import de.codereddev.wordupexample.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -73,13 +73,15 @@ class SoundListViewModelImpl(
     override fun onMenuItemSelected(sound: Sound, itemId: Int) {
         when (itemId) {
             R.id.action_share -> {
-                val uri = WordUpProvider.getUriForSound(context, sound)
-                val shareIntent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    type = "audio/mp3"
+                viewModelScope.launch {
+                    val uri = UriUtils.getUriForSound(context, sound)
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        type = "audio/mp3"
+                    }
+                    intents.postValue(shareIntent)
                 }
-                intents.postValue(shareIntent)
             }
             R.id.action_save -> {
                 permissionRequests.postValue(

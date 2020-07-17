@@ -29,6 +29,8 @@ import java.io.InputStream
 @Suppress("DEPRECATION")
 object StorageUtils {
 
+    const val WORDUP_DIRECTORY = "wordup"
+
     /**
      * An array of all available options to set a sound as system sound.
      */
@@ -57,6 +59,20 @@ object StorageUtils {
                 storeSoundQ(context, config, sound)
             }
         }
+
+    fun storeSoundInCache(context: Context, sound: Sound) {
+        val dir = File(context.cacheDir, WORDUP_DIRECTORY)
+        dir.mkdirs()
+        val file = File(dir, "${sound.name}.mp3")
+        if (file.exists())
+            return
+
+        FileOutputStream(file).use { output ->
+            getAssetInputStream(context, sound).use { input ->
+                input.copyTo(output)
+            }
+        }
+    }
 
     /**
      * Sets a sound as standard system sound for the defined options.
@@ -150,9 +166,7 @@ object StorageUtils {
      */
     private fun storeSoundLegacy(context: Context, config: WordUpConfig, sound: Sound): Uri {
         val dir = File(getSoundDirectoryPath(config, sound))
-        if (!dir.exists()) {
-            dir.mkdirs()
-        }
+        dir.mkdirs()
         val file = File(dir, "${sound.name}.mp3")
 
         FileOutputStream(file).use { output ->

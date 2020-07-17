@@ -95,21 +95,35 @@ To do so you will have to structure your sounds depending on two use cases:
 
 ### Sharing sounds
 
-For supporting sound sharing you have to define the following provider in your app's manifest.
+For supporting sound sharing you have to define the following `FileProvider` in your app's manifest.
 
 ```xml
 <provider
-    android:name="de.codereddev.wordup.provider.WordUpProvider"
-    android:authorities="${packageName}.wordup.fileprovider"
-    android:exported="false"
-    android:grantUriPermissions="true" />
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${packageName}.wordup.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+</provider>
 ```
 
-E.g. you can then share the sound by firing an `Intent` from a fragment like this:
+Where `wordup_paths` is defined like this:
+
+```xml
+<paths>
+    <cache-path
+        name="wordup"
+        path="wordup/" />
+</paths>
+```
+
+You can then share the sound by firing an `Intent` from a fragment like this:
 
 ```kotlin
 fun shareSound(sound: Sound) {
-    val uri = WordUpProvider.getUriForSound(requireContext(), sound)
+    val uri = UriUtils.getUriForSound(requireContext(), sound)
     val shareIntent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_STREAM, uri)
@@ -118,6 +132,8 @@ fun shareSound(sound: Sound) {
     requireContext().startActivity(Intent.createChooser(shareIntent, getString(R.string.share_sound_via)))
 }
 ```
+
+As `UriUtils.getUriForSound()` might do some I/O action it should be called asynchronously.
 
 ### Saving sounds OR setting sounds as system sound
 

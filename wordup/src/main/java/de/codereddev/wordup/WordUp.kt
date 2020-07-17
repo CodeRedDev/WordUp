@@ -2,13 +2,14 @@ package de.codereddev.wordup
 
 import android.content.Context
 import android.content.pm.PackageManager
-import de.codereddev.wordup.provider.WordUpProvider
 
 object WordUp {
     lateinit var config: WordUpConfig
         private set
 
     fun isConfigInitialized() = this::config.isInitialized
+
+    const val PROVIDER_AUTHORITY = "wordup.fileprovider"
 
     fun init(context: Context, config: WordUpConfig) {
         this.config = config
@@ -20,10 +21,10 @@ object WordUp {
 
     private fun checkForProvider(context: Context) {
         context.packageManager.resolveContentProvider(
-            "${context.packageName}.${WordUpProvider.PROVIDER_AUTHORITY}",
+            "${context.packageName}.$PROVIDER_AUTHORITY",
             PackageManager.GET_META_DATA
         ) ?: throw IllegalArgumentException(
-            "WordUpProvider definition in manifest missing or incorrect!"
+            ErrorConstants.FILE_PROVIDER_MISSING
         )
     }
 }
