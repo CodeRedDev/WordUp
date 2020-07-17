@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import de.codereddev.wordup.model.database.Word
+import de.codereddev.wordup.database.Word
 import de.codereddev.wordupexample.R
 
 class WordListAdapter : RecyclerView.Adapter<WordListAdapter.ViewHolder>() {

@@ -5,11 +5,11 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.codereddev.wordup.WordUpConfig
-import de.codereddev.wordup.model.database.Category
-import de.codereddev.wordup.model.database.CategoryDao
-import de.codereddev.wordup.model.database.Word
-import de.codereddev.wordup.model.database.WordDao
-import de.codereddev.wordup.model.database.WordUpDatabase
+import de.codereddev.wordup.database.Category
+import de.codereddev.wordup.database.CategoryDao
+import de.codereddev.wordup.database.StandardWordUpDatabase
+import de.codereddev.wordup.database.Word
+import de.codereddev.wordup.database.WordDao
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
@@ -25,16 +25,16 @@ import java.io.IOException
 @RunWith(AndroidJUnit4::class)
 class LocalDbInitializerTest {
 
-    private lateinit var db: WordUpDatabase
+    private lateinit var db: StandardWordUpDatabase
     private lateinit var wordDao: WordDao
     private lateinit var categoryDao: CategoryDao
 
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(context, WordUpDatabase::class.java).build()
-        wordDao = db.wordDao()
-        categoryDao = db.categoryDao()
+        db = Room.inMemoryDatabaseBuilder(context, StandardWordUpDatabase::class.java).build()
+        wordDao = db.getWordDao()
+        categoryDao = db.getCategoryDao()
     }
 
     @After

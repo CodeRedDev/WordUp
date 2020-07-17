@@ -12,10 +12,9 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import de.codereddev.wordup.ErrorConstants
+import de.codereddev.wordup.WordUp
 import de.codereddev.wordup.WordUpConfig
-import de.codereddev.wordup.model.database.Word
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import de.codereddev.wordup.database.Word
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -47,18 +46,22 @@ object StorageUtils {
      * Be sure to grant [Manifest.permission.WRITE_EXTERNAL_STORAGE] for build
      * versions prior to [Build.VERSION_CODES.Q].
      *
+     * As this function does I/O work it should be called asynchronously.
+     *
      * @throws IllegalArgumentException if directory was not defined in WordUpConfig
      */
-    suspend fun storeWord(context: Context, config: WordUpConfig, word: Word) =
-        withContext(Dispatchers.IO) {
-            checkConfigForDirectory(config)
+    fun storeWord(context: Context, word: Word) {
+        if (!WordUp.isConfigInitialized())
+            throw IllegalStateException(ErrorConstants.CONFIG_NOT_DEFINED)
+        val config = WordUp.config
+        checkConfigForDirectory(config)
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                storeWordLegacy(context, config, word)
-            } else {
-                storeWordQ(context, config, word)
-            }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            storeWordLegacy(context, config, word)
+        } else {
+            storeWordQ(context, config, word)
         }
+    }
 
     fun storeWordInCache(context: Context, word: Word) {
         val dir = File(context.cacheDir, WORDUP_DIRECTORY)
@@ -85,15 +88,19 @@ object StorageUtils {
      * Be sure to grant [Manifest.permission.WRITE_EXTERNAL_STORAGE] for build
      * versions prior to [Build.VERSION_CODES.Q].
      *
+     * As this function does I/O work it should be called asynchronously.
+     *
      * @throws IllegalArgumentException if directory was not defined in WordUpConfig
      * @see [storeWord]
      */
-    suspend fun setAsSystemSound(
+    fun setAsSystemSound(
         context: Context,
-        config: WordUpConfig,
         word: Word,
         soundOptions: Array<String>
-    ) = withContext(Dispatchers.IO) {
+    ) {
+        if (!WordUp.isConfigInitialized())
+            throw IllegalStateException(ErrorConstants.CONFIG_NOT_DEFINED)
+        val config = WordUp.config
         checkConfigForDirectory(config)
 
         if (soundOptions.isEmpty())

@@ -3,7 +3,7 @@ package de.codereddev.wordupexample
 import android.app.Application
 import de.codereddev.wordup.WordUp
 import de.codereddev.wordup.WordUpConfig
-import de.codereddev.wordup.model.database.WordUpDatabase
+import de.codereddev.wordup.database.StandardWordUpDatabase
 import de.codereddev.wordupexample.viewmodel.WordListViewModel
 import de.codereddev.wordupexample.viewmodel.WordListViewModelImpl
 import org.koin.android.ext.koin.androidContext
@@ -31,15 +31,15 @@ class WordUpExampleApp : Application() {
     private val applicationModule = module {
 
         single {
-            WordUpDatabase.getInstance(get())
+            StandardWordUpDatabase.getInstance(get())
         }
 
         single {
-            get<WordUpDatabase>().wordDao()
+            get<StandardWordUpDatabase>().getWordDao()
         }
 
         single {
-            get<WordUpDatabase>().categoryDao()
+            get<StandardWordUpDatabase>().getCategoryDao()
         }
 
         viewModel<WordListViewModel> {

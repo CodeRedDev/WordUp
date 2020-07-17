@@ -4,11 +4,9 @@ import android.content.Context
 import de.codereddev.wordup.ErrorConstants
 import de.codereddev.wordup.WordUp
 import de.codereddev.wordup.WordUpConfig
-import de.codereddev.wordup.model.database.Category
-import de.codereddev.wordup.model.database.Word
-import de.codereddev.wordup.model.database.WordUpDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import de.codereddev.wordup.database.Category
+import de.codereddev.wordup.database.Word
+import de.codereddev.wordup.database.WordUpDatabase
 
 /**
  * This helps to initialize the [WordUpDatabase] with locally stored words from assets.
@@ -38,15 +36,15 @@ import kotlinx.coroutines.withContext
  * If [WordUpConfig.newWordsEnabled] is true newly added words will be marked as such.
  */
 class LocalDbInitializer(database: WordUpDatabase) {
-    private val wordDao = database.wordDao()
-    private val categoryDao = database.categoryDao()
+    private val wordDao = database.getWordDao()
+    private val categoryDao = database.getCategoryDao()
 
     /**
      * Initialize the database from locally stored asset files.
      *
-     * This should be called from a coroutine as it does a lot of IO work.
+     * As this function does a lot of I/O work it should be called asynchronously.
      */
-    suspend fun initialize(context: Context) = withContext(Dispatchers.IO) {
+    fun initialize(context: Context) {
         if (!WordUp.isConfigInitialized())
             throw IllegalStateException(ErrorConstants.CONFIG_NOT_DEFINED)
         val config = WordUp.config
@@ -58,28 +56,78 @@ class LocalDbInitializer(database: WordUpDatabase) {
         }
     }
 
-    private suspend fun initializeWithoutCategory(context: Context, config: WordUpConfig) =
-        withContext(Dispatchers.IO) {
-            val curWordNames = wordDao.getAllWords().map { it.name }
-            val assetList = getWordUpAssets(context)
-            if (assetList.any { !it.endsWith(".mp3") })
-                throw IllegalArgumentException(ErrorConstants.INITIALIZER_NO_CATEGORY_SUBFOLDER)
+    private fun initializeWithoutCategory(context: Context, config: WordUpConfig) {
+        val curWordNames = wordDao.getAllWords().map { it.name }
+        val assetList = getWordUpAssets(context)
+        if (assetList.any { !it.endsWith(".mp3") })
+            throw IllegalArgumentException(ErrorConstants.INITIALIZER_NO_CATEGORY_SUBFOLDER)
 
-            val fileList = assetList.map { it.replace(".mp3", "") }
+        val fileList = assetList.map { it.replace(".mp3", "") }
 
-            curWordNames.subtract(fileList).toList().let {
-                if (it.isNotEmpty()) {
-                    wordDao.deleteBatch(it)
-                }
+        curWordNames.subtract(fileList).toList().let {
+            if (it.isNotEmpty()) {
+                wordDao.deleteBatch(it)
             }
+        }
 
+        val wordList = mutableListOf<Word>()
+        fileList.subtract(curWordNames).forEach { new ->
+            wordList.add(
+                Word(
+                    name = new,
+                    path = "$PATH_WORDUP/$new.mp3",
+                    isNew = config.newWordsEnabled
+                )
+            )
+        }
+        if (wordList.isNotEmpty()) {
+            wordDao.insertBatch(wordList)
+        }
+    }
+
+    private fun initializeWithCategory(context: Context, config: WordUpConfig) {
+        val curCategories = categoryDao.getAllCategories().map { it.name }
+
+        val assetList = getWordUpAssets(context)
+        if (assetList.any { it.endsWith(".mp3") })
+            throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_ROOT_MP3)
+
+        val dirList = assetList.toList()
+
+        /*
+         * Category was deleted or renamed.
+         * All words that have a reference to this category are not valid anymore
+         * and will be deleted in a cascade by the database.
+         */
+        curCategories.subtract(dirList).toList().let {
+            if (it.isNotEmpty()) {
+                categoryDao.deleteBatch(it)
+            }
+        }
+
+        val processedDirs = mutableListOf<String>()
+
+        /*
+         * Category was added.
+         * All words of this category are new.
+         */
+        dirList.subtract(curCategories).forEach { newCategory ->
+            processedDirs.add(newCategory)
+            val category = Category(newCategory)
+            categoryDao.insert(category)
+            val assetFileList = getWordUpCategoryAssets(context, newCategory)
+            if (assetFileList.any { !it.endsWith(".mp3") })
+                throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_SUBFOLDER)
+
+            val fileList = assetFileList.map { it.replace(".mp3", "") }
             val wordList = mutableListOf<Word>()
-            fileList.subtract(curWordNames).forEach { new ->
+            fileList.forEach { name ->
                 wordList.add(
                     Word(
-                        name = new,
-                        path = "$PATH_WORDUP/$new.mp3",
-                        isNew = config.newWordsEnabled
+                        name = name,
+                        path = "$PATH_WORDUP/$newCategory/$name.mp3",
+                        isNew = config.newWordsEnabled,
+                        category = category
                     )
                 )
             }
@@ -88,97 +136,45 @@ class LocalDbInitializer(database: WordUpDatabase) {
             }
         }
 
-    private suspend fun initializeWithCategory(context: Context, config: WordUpConfig) =
-        withContext(Dispatchers.IO) {
-            val curCategories = categoryDao.getAllCategories().map { it.name }
+        /*
+         * Checking old categories
+         * Words can be deleted, renamed or added.
+         * Renamed words are equal to added words.
+         */
+        dirList.subtract(processedDirs).forEach { oldCategory ->
+            val category = Category(oldCategory)
+            val curWords = wordDao.getWordsFromCategory(category).map { it.name }
 
-            val assetList = getWordUpAssets(context)
-            if (assetList.any { it.endsWith(".mp3") })
-                throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_ROOT_MP3)
+            val assetFileList = getWordUpCategoryAssets(context, oldCategory)
+            if (assetFileList.any { !it.endsWith(".mp3") })
+                throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_SUBFOLDER)
 
-            val dirList = assetList.toList()
+            val fileList = assetFileList.map { it.replace(".mp3", "") }
 
-            /*
-             * Category was deleted or renamed.
-             * All words that have a reference to this category are not valid anymore
-             * and will be deleted in a cascade by the database.
-             */
-            curCategories.subtract(dirList).toList().let {
+            // Deleted words
+            curWords.subtract(fileList).toList().let {
                 if (it.isNotEmpty()) {
-                    categoryDao.deleteBatch(it)
+                    wordDao.deleteBatchByCategory(it, category)
                 }
             }
 
-            val processedDirs = mutableListOf<String>()
-
-            /*
-             * Category was added.
-             * All words of this category are new.
-             */
-            dirList.subtract(curCategories).forEach { newCategory ->
-                processedDirs.add(newCategory)
-                val category = Category(newCategory)
-                categoryDao.insert(category)
-                val assetFileList = getWordUpCategoryAssets(context, newCategory)
-                if (assetFileList.any { !it.endsWith(".mp3") })
-                    throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_SUBFOLDER)
-
-                val fileList = assetFileList.map { it.replace(".mp3", "") }
-                val wordList = mutableListOf<Word>()
-                fileList.forEach { name ->
-                    wordList.add(
-                        Word(
-                            name = name,
-                            path = "$PATH_WORDUP/$newCategory/$name.mp3",
-                            isNew = config.newWordsEnabled,
-                            category = category
-                        )
+            // New words
+            val wordList = mutableListOf<Word>()
+            fileList.subtract(curWords).forEach { newWord ->
+                wordList.add(
+                    Word(
+                        name = newWord,
+                        path = "$PATH_WORDUP/$oldCategory/$newWord.mp3",
+                        isNew = config.newWordsEnabled,
+                        category = category
                     )
-                }
-                if (wordList.isNotEmpty()) {
-                    wordDao.insertBatch(wordList)
-                }
+                )
             }
-
-            /*
-             * Checking old categories
-             * Words can be deleted, renamed or added.
-             * Renamed words are equal to added words.
-             */
-            dirList.subtract(processedDirs).forEach { oldCategory ->
-                val category = Category(oldCategory)
-                val curWords = wordDao.getWordsFromCategory(category).map { it.name }
-
-                val assetFileList = getWordUpCategoryAssets(context, oldCategory)
-                if (assetFileList.any { !it.endsWith(".mp3") })
-                    throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_SUBFOLDER)
-
-                val fileList = assetFileList.map { it.replace(".mp3", "") }
-
-                // Deleted words
-                curWords.subtract(fileList).toList().let {
-                    if (it.isNotEmpty()) {
-                        wordDao.deleteBatchByCategory(it, category)
-                    }
-                }
-
-                // New words
-                val wordList = mutableListOf<Word>()
-                fileList.subtract(curWords).forEach { newWord ->
-                    wordList.add(
-                        Word(
-                            name = newWord,
-                            path = "$PATH_WORDUP/$oldCategory/$newWord.mp3",
-                            isNew = config.newWordsEnabled,
-                            category = category
-                        )
-                    )
-                }
-                if (wordList.isNotEmpty()) {
-                    wordDao.insertBatch(wordList)
-                }
+            if (wordList.isNotEmpty()) {
+                wordDao.insertBatch(wordList)
             }
         }
+    }
 
     private fun getWordUpAssets(context: Context): Array<String> {
         return context.assets.list(PATH_WORDUP)

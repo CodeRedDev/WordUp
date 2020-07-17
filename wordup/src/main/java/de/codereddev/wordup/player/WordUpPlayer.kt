@@ -1,7 +1,7 @@
 package de.codereddev.wordup.player
 
 import android.content.Context
-import de.codereddev.wordup.model.database.Word
+import de.codereddev.wordup.database.Word
 
 interface WordUpPlayer {
 

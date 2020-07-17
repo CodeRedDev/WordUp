@@ -11,9 +11,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import de.codereddev.wordup.WordUp
-import de.codereddev.wordup.model.database.Word
-import de.codereddev.wordup.model.database.WordDao
+import de.codereddev.wordup.database.Word
+import de.codereddev.wordup.database.WordDao
 import de.codereddev.wordup.player.LocalWordUpPlayer
 import de.codereddev.wordup.util.StorageUtils
 import de.codereddev.wordup.util.UriUtils
@@ -125,18 +124,17 @@ class WordListViewModelImpl(
         when (permissionRequest.action) {
             ACTION_SAVE -> {
                 if (granted) {
-                    viewModelScope.launch(Dispatchers.Main) {
-                        StorageUtils.storeWord(context, WordUp.config, permissionRequest.word!!)
+                    viewModelScope.launch(Dispatchers.IO) {
+                        StorageUtils.storeWord(context, permissionRequest.word!!)
                         events.postValue(Event.WORD_SAVED)
                     }
                 }
             }
             ACTION_SET_SYSTEM_SOUND -> {
                 if (granted) {
-                    viewModelScope.launch(Dispatchers.Main) {
+                    viewModelScope.launch(Dispatchers.IO) {
                         StorageUtils.setAsSystemSound(
                             context,
-                            WordUp.config,
                             permissionRequest.word!!,
                             arrayOf(permissionRequest.systemSoundOption!!)
                         )
