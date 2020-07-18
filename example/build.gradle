@@ -35,7 +35,7 @@ dependencies {
     implementation project(":wordup-core")
 
     def lifecycle_version = "2.2.0"
-    def koin_version = "2.0.1"
+    def koin_version = "2.1.6"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72"
     implementation 'androidx.appcompat:appcompat:1.1.0'
