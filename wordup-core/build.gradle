@@ -1,14 +1,16 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
+plugins {
+    id "com.android.library"
+    id "kotlin-android"
+    id "kotlin-android-extensions"
+    id "kotlin-kapt"
+}
 
 android {
     compileSdkVersion versions.compileSdk
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionName "0.2.1"
+        versionName "0.2.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -20,12 +22,12 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility versions.sourceCompatibility
+        targetCompatibility versions.targetCompatibility
     }
     // For Kotlin projects
     kotlinOptions {
@@ -46,14 +48,12 @@ dependencies {
     androidTestImplementation deps.androidxTestJunit
     androidTestImplementation deps.androidxTestCore
     androidTestImplementation deps.androidxTestRunner
-
-    kapt deps.roomKaptCompiler
 }
 
 // Publishing
 ext {
-    PUBLISH_GROUP_ID = 'de.codereddev.wordup'
-    PUBLISH_ARTIFACT_ID = 'wordup-core'
+    PUBLISH_GROUP_ID = "de.codereddev.wordup"
+    PUBLISH_ARTIFACT_ID = "wordup-core"
     PUBLISH_VERSION = android.defaultConfig.versionName
 }
 
