@@ -8,8 +8,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.codereddev.wordup.database.WordUpDatabase
 import de.codereddev.wordup.util.LocalDbInitializer
 import de.codereddev.wordupexample.R
-import kotlinx.coroutines.*
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class LoadingScreenActivity : AppCompatActivity() {
