@@ -51,8 +51,9 @@ object StorageUtils {
      * @throws IllegalArgumentException if directory was not defined in WordUpConfig
      */
     fun storeWord(context: Context, word: Word) {
-        if (!WordUp.isConfigInitialized())
+        if (!WordUp.isConfigInitialized()) {
             throw IllegalStateException(ErrorConstants.CONFIG_NOT_DEFINED)
+        }
         val config = WordUp.config
         checkConfigForDirectory(config)
 
@@ -67,8 +68,9 @@ object StorageUtils {
         val dir = File(context.cacheDir, WORDUP_DIRECTORY)
         dir.mkdirs()
         val file = File(dir, "${word.name}.mp3")
-        if (file.exists())
+        if (file.exists()) {
             return
+        }
 
         FileOutputStream(file).use { output ->
             getAssetInputStream(context, word).use { input ->
@@ -98,16 +100,19 @@ object StorageUtils {
         word: Word,
         soundOptions: Array<String>
     ) {
-        if (!WordUp.isConfigInitialized())
+        if (!WordUp.isConfigInitialized()) {
             throw IllegalStateException(ErrorConstants.CONFIG_NOT_DEFINED)
+        }
         val config = WordUp.config
         checkConfigForDirectory(config)
 
-        if (soundOptions.isEmpty())
+        if (soundOptions.isEmpty()) {
             throw IllegalArgumentException(ErrorConstants.STORAGE_SYSTEM_SOUND_OPTION_EMPTY)
+        }
         soundOptions.forEach {
-            if (!SYSTEM_SOUND_OPTIONS.contains(it))
+            if (!SYSTEM_SOUND_OPTIONS.contains(it)) {
                 throw IllegalArgumentException(ErrorConstants.STORAGE_SYSTEM_SOUND_OPTION)
+            }
         }
 
         val contentUri = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -140,8 +145,9 @@ object StorageUtils {
      * @throws IllegalArgumentException If a word is not locally stored.
      */
     fun getAssetInputStream(context: Context, word: Word): InputStream {
-        if (word.isNetworkResource)
+        if (word.isNetworkResource) {
             throw IllegalArgumentException(ErrorConstants.STORAGE_ASSET_INPUT_STREAM)
+        }
 
         return context.assets.open(word.path)
     }
@@ -155,15 +161,17 @@ object StorageUtils {
      * @throws IllegalArgumentException If a word is not locally stored.
      */
     fun getAssetFd(context: Context, word: Word): AssetFileDescriptor {
-        if (word.isNetworkResource)
+        if (word.isNetworkResource) {
             throw IllegalArgumentException(ErrorConstants.STORAGE_ASSET_FD)
+        }
 
         return context.assets.openFd(word.path)
     }
 
     private fun checkConfigForDirectory(config: WordUpConfig) {
-        if (config.directory == null)
+        if (config.directory == null) {
             throw IllegalArgumentException(ErrorConstants.CONFIG_DIRECTORY_NOT_DEFINED)
+        }
     }
 
     /**
@@ -183,8 +191,9 @@ object StorageUtils {
         }
 
         var contentUri = getExistingMediaUriLegacy(context, config, word)
-        if (contentUri != null)
+        if (contentUri != null) {
             return contentUri
+        }
 
         val resolver = context.contentResolver
         val details = ContentValues()

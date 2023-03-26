@@ -10,6 +10,7 @@ import de.codereddev.wordup.database.CategoryDao
 import de.codereddev.wordup.database.StandardWordUpDatabase
 import de.codereddev.wordup.database.Word
 import de.codereddev.wordup.database.WordDao
+import java.io.IOException
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
@@ -20,7 +21,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
 class LocalDbInitializerTest {

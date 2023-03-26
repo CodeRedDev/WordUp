@@ -14,8 +14,9 @@ class LocalWordUpPlayer(context: Context) : WordUpPlayer {
     private val player = ExoPlayer.Builder(context).build()
 
     override fun play(context: Context, word: Word) {
-        if (word.isNetworkResource)
+        if (word.isNetworkResource) {
             throw IllegalArgumentException(ErrorConstants.PLAYER_LOCAL_NO_LOCAL)
+        }
 
         val mediaSource = buildMediaSource(context, word)
         player.playWhenReady = true
