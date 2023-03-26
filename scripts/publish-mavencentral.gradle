@@ -19,8 +19,7 @@ task androidJavadocJar(type: Jar) {
 }
 
 artifacts {
-    archives androidSourcesJar
-    archives androidJavadocJar
+    archives androidSourcesJar, androidJavadocJar
 }
 
 ext["signing.keyId"] = ""
@@ -49,9 +48,7 @@ if (secretPropsFile.exists()) {
 uploadArchives {
     repositories {
         mavenDeployer {
-            beforeDeployment { MavenDeployment deployment ->
-                signing.signPom(deployment)
-            }
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
             pom.groupId = PUBLISH_GROUP_ID
             pom.artifactId = PUBLISH_ARTIFACT_ID

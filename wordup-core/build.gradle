@@ -1,15 +1,15 @@
 plugins {
-    id "com.android.library"
-    id "kotlin-android"
-    id "kotlin-android-extensions"
-    id "kotlin-kapt"
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.kapt'
 }
 
 android {
-    compileSdkVersion versions.compileSdk
+    namespace 'de.codereddev.wordup'
+    compileSdk 33
     defaultConfig {
-        minSdkVersion versions.minSdk
-        targetSdkVersion versions.targetSdk
+        minSdk 24
+        targetSdk 33
         versionName "0.2.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -26,28 +26,29 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility versions.sourceCompatibility
-        targetCompatibility versions.targetCompatibility
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
-    // For Kotlin projects
     kotlinOptions {
-        jvmTarget = versions.kotlinJvmTarget
+        jvmTarget = '1.8'
     }
 }
 
 dependencies {
-    api deps.roomRuntime
-    api deps.androidxLiveData
-    api deps.exoplayerCore
+    api 'androidx.room:room-runtime:2.5.1'
+    api 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
+    api 'com.google.android.exoplayer:exoplayer-core:2.18.5'
 
-    implementation deps.androidxCore
-    implementation deps.kotlinStdlibJdk8
+    implementation 'androidx.core:core-ktx:1.9.0'
+    // TODO: Necessary?
+    //implementation deps.kotlinStdlibJdk8
 
-    testImplementation deps.junit
+    testImplementation 'junit:junit:4.13.2'
 
-    androidTestImplementation deps.androidxTestJunit
-    androidTestImplementation deps.androidxTestCore
-    androidTestImplementation deps.androidxTestRunner
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    // TODO: Necessary for release or not?
+    kapt 'androidx.room:room-compiler:2.5.1'
 }
 
 // Publishing
@@ -57,4 +58,5 @@ ext {
     PUBLISH_VERSION = android.defaultConfig.versionName
 }
 
-apply from: "${rootProject.projectDir}/scripts/publish-mavencentral.gradle"
+// TODO: Re-enable!
+//apply from: "${rootProject.projectDir}/scripts/publish-mavencentral.gradle"
