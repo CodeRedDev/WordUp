@@ -1,9 +1,9 @@
-apply plugin: "maven"
+apply plugin: "maven-publish"
 apply plugin: "signing"
 apply plugin: "org.jetbrains.dokka"
 
 tasks.named("dokkaJavadoc") {
-    outputDirectory = "$buildDir/javadoc"
+    outputDirectory = new File("$buildDir/javadoc")
 }
 
 task androidSourcesJar(type: Jar) {
@@ -45,49 +45,49 @@ if (secretPropsFile.exists()) {
     ext["ossrhPassword"] = System.getenv("OSSRH_PASSWORD")
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            pom.groupId = PUBLISH_GROUP_ID
-            pom.artifactId = PUBLISH_ARTIFACT_ID
-            pom.version = PUBLISH_VERSION
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            pom.project {
-                name PUBLISH_ARTIFACT_ID
-                packaging "aar"
-                description "An Android open source framework for creating soundboard apps."
-                url "https://github.com/CodeRedDev/WordUp"
-                licenses {
-                    license {
-                        name "The Unlicense"
-                        url "https://unlicense.org/"
-                    }
-                }
-                developers {
-                    developer {
-                        id "CodeRedDev"
-                        name "Michael Martel"
-                        email "codered.dev.germany@gmail.com"
-                    }
-                }
-                scm {
-                    url "https://github.com/CodeRedDev/WordUp/tree/master"
-                    connection "scm:git://github.com/CodeRedDev/WordUp.git"
-                    developerConnection "scm:git:ssh://github.com:CodeRedDev/WordUp.git"
-                }
-            }
-        }
-    }
-}
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            beforeDeployment { deployment -> signing.signPom(deployment) }
+//
+//            pom.groupId = PUBLISH_GROUP_ID
+//            pom.artifactId = PUBLISH_ARTIFACT_ID
+//            pom.version = PUBLISH_VERSION
+//
+//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//                authentication(userName: ossrhUsername, password: ossrhPassword)
+//            }
+//            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+//                authentication(userName: ossrhUsername, password: ossrhPassword)
+//            }
+//
+//            pom.project {
+//                name PUBLISH_ARTIFACT_ID
+//                packaging "aar"
+//                description "An Android open source framework for creating soundboard apps."
+//                url "https://github.com/CodeRedDev/WordUp"
+//                licenses {
+//                    license {
+//                        name "The Unlicense"
+//                        url "https://unlicense.org/"
+//                    }
+//                }
+//                developers {
+//                    developer {
+//                        id "CodeRedDev"
+//                        name "Michael Martel"
+//                        email "codered.dev.germany@gmail.com"
+//                    }
+//                }
+//                scm {
+//                    url "https://github.com/CodeRedDev/WordUp/tree/master"
+//                    connection "scm:git://github.com/CodeRedDev/WordUp.git"
+//                    developerConnection "scm:git:ssh://github.com:CodeRedDev/WordUp.git"
+//                }
+//            }
+//        }
+//    }
+//}
 
 signing {
     sign configurations.archives

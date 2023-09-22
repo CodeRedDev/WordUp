@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "WordUp"
-include ":example", ":wordup-core"
+include(":example", ":wordup-core")
