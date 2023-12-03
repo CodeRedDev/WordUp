@@ -2,11 +2,8 @@ package de.codereddev.wordup.player
 
 import android.content.Context
 import android.net.Uri
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DefaultDataSource
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
 import de.codereddev.wordup.ErrorConstants
 import de.codereddev.wordup.database.Word
 
@@ -18,9 +15,10 @@ class LocalWordUpPlayer(context: Context) : WordUpPlayer {
             throw IllegalArgumentException(ErrorConstants.PLAYER_LOCAL_NO_LOCAL)
         }
 
-        val mediaSource = buildMediaSource(context, word)
+        val mediaItem = buildMediaItem(word)
+        player.setMediaItem(mediaItem)
         player.playWhenReady = true
-        player.prepare(mediaSource)
+        player.prepare()
     }
 
     override fun pause() {
@@ -39,8 +37,7 @@ class LocalWordUpPlayer(context: Context) : WordUpPlayer {
         player.release()
     }
 
-    private fun buildMediaSource(context: Context, word: Word): MediaSource {
-        return ProgressiveMediaSource.Factory(DefaultDataSource.Factory(context))
-            .createMediaSource(MediaItem.fromUri(Uri.parse("asset:///${word.path}")))
+    private fun buildMediaItem(word: Word): MediaItem {
+        return MediaItem.fromUri(Uri.parse("asset:///${word.path}"))
     }
 }
