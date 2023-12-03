@@ -59,7 +59,7 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
 }
 
-version = "0.2.4-SNAPSHOT"
+version = "0.2.4"
 
 configure<PublishingExtension> {
     publications {
@@ -77,6 +77,7 @@ configure<PublishingExtension> {
                     description.set(
                         "An Android open source framework for creating soundboard apps."
                     )
+                    url.set("https://github.com/CodeRedDev/WordUp")
                     licenses {
                         license {
                             name.set("The Unlicense")
