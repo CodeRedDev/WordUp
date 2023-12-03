@@ -1,9 +1,0 @@
-pluginManagement {
-    repositories {
-        google()
-        jcenter()
-        gradlePluginPortal()
-    }
-}
-
-include ":example", ":wordup-core"

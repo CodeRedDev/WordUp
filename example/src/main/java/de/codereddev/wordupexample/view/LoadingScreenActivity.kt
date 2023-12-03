@@ -4,19 +4,22 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import de.codereddev.wordup.database.StandardWordUpDatabase
+import dagger.hilt.android.AndroidEntryPoint
+import de.codereddev.wordup.database.WordUpDatabase
 import de.codereddev.wordup.util.LocalDbInitializer
 import de.codereddev.wordupexample.R
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.android.ext.android.inject
 
+@AndroidEntryPoint
 class LoadingScreenActivity : AppCompatActivity() {
 
-    private val database: StandardWordUpDatabase by inject()
+    @Inject
+    lateinit var database: WordUpDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

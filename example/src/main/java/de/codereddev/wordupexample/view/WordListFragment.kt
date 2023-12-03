@@ -12,49 +12,55 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
 import de.codereddev.wordup.WordUp
 import de.codereddev.wordup.database.Word
 import de.codereddev.wordupexample.R
+import de.codereddev.wordupexample.databinding.FragmentWordListBinding
 import de.codereddev.wordupexample.view.adapter.WordListAdapter
 import de.codereddev.wordupexample.viewmodel.WordListViewModel
-import kotlinx.android.synthetic.main.fragment_word_list.view.*
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
+@AndroidEntryPoint
 class WordListFragment : Fragment() {
-    private val viewModel: WordListViewModel by viewModel()
+    private val viewModel: WordListViewModel by viewModels()
     private val wordListAdapter = WordListAdapter()
+
+    private var _binding: FragmentWordListBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val rootView = inflater.inflate(R.layout.fragment_word_list, container, false)
+        _binding = FragmentWordListBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         wordListAdapter.itemClickListener = object : WordListAdapter.ItemClickListener {
             override fun onItemClicked(word: Word) {
-                viewModel.onWordClick(word)
+                viewModel.onWordClick(requireContext(), word)
             }
 
             override fun onItemLongClick(word: Word, view: View) {
                 val popup = PopupMenu(requireContext(), view)
                 popup.inflate(R.menu.word_options_menu)
                 popup.setOnMenuItemClickListener {
-                    viewModel.onMenuItemSelected(word, it.itemId)
+                    viewModel.onMenuItemSelected(requireContext(), word, it.itemId)
                     true
                 }
                 popup.show()
             }
         }
 
-        rootView.word_list_rv.apply {
+        binding.wordListRv.apply {
             adapter = wordListAdapter
             layoutManager = GridLayoutManager(context, 3)
         }
 
-        return rootView
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -111,7 +117,7 @@ class WordListFragment : Fragment() {
                 if (ContextCompat.checkSelfPermission(requireContext(), it.permission)
                     == PackageManager.PERMISSION_GRANTED
                 ) {
-                    viewModel.onPermissionResult(it, true)
+                    viewModel.onPermissionResult(requireContext(), it, true)
                 } else {
                     ActivityCompat.requestPermissions(
                         requireActivity(),
@@ -121,5 +127,10 @@ class WordListFragment : Fragment() {
                 }
             }
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }

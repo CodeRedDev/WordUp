@@ -11,57 +11,30 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.codereddev.wordup.database.Word
 import de.codereddev.wordup.database.WordDao
 import de.codereddev.wordup.player.LocalWordUpPlayer
 import de.codereddev.wordup.util.StorageUtils
 import de.codereddev.wordup.util.UriUtils
 import de.codereddev.wordupexample.R
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class WordListViewModel : ViewModel() {
-    abstract val wordList: MutableLiveData<List<Word>>
-    abstract val events: MutableLiveData<Event>
-    abstract val intents: MutableLiveData<Intent>
-    abstract val permissionRequests: MutableLiveData<PermissionRequest>
-
-    abstract fun onWordClick(word: Word)
-
-    abstract fun onMenuItemSelected(word: Word, itemId: Int)
-
-    abstract fun onPermissionResult(permissionRequest: PermissionRequest, granted: Boolean)
-
-    enum class Event {
-        PERMISSION_WRITE_SETTINGS,
-        SYSTEM_SOUND_SET,
-        WORD_SAVED
-    }
-
-    data class PermissionRequest(
-        val permission: String,
-        val action: Int,
-        val word: Word? = null,
-        val systemSoundOption: String? = null
-    )
-
-    companion object {
-        const val ACTION_SAVE = 0
-        const val ACTION_SET_SYSTEM_SOUND = 1
-    }
-}
-
-class WordListViewModelImpl(
-    private val context: Context,
+@HiltViewModel
+class WordListViewModel @Inject constructor(
+    @ApplicationContext context: Context,
     private val wordDao: WordDao
-) : WordListViewModel() {
-    override val wordList: MutableLiveData<List<Word>> = MutableLiveData()
+) : ViewModel() {
+    val wordList: MutableLiveData<List<Word>> = MutableLiveData()
     private val wordListObserver: Observer<List<Word>> = Observer {
         wordList.postValue(it)
     }
-    override val events: MutableLiveData<Event> = MutableLiveData()
-    override val intents: MutableLiveData<Intent> = MutableLiveData()
-    override val permissionRequests: MutableLiveData<PermissionRequest> = MutableLiveData()
+    val events: MutableLiveData<Event> = MutableLiveData()
+    val intents: MutableLiveData<Intent> = MutableLiveData()
+    val permissionRequests: MutableLiveData<PermissionRequest> = MutableLiveData()
 
     private val wordupPlayer = LocalWordUpPlayer(context)
 
@@ -69,7 +42,7 @@ class WordListViewModelImpl(
         wordDao.getAllWordsLive().observeForever(wordListObserver)
     }
 
-    override fun onMenuItemSelected(word: Word, itemId: Int) {
+    fun onMenuItemSelected(context: Context, word: Word, itemId: Int) {
         when (itemId) {
             R.id.action_share -> {
                 viewModelScope.launch {
@@ -115,12 +88,16 @@ class WordListViewModelImpl(
         }
     }
 
-    override fun onWordClick(word: Word) {
+    fun onWordClick(context: Context, word: Word) {
         wordupPlayer.play(context, word)
     }
 
     @SuppressLint("MissingPermission")
-    override fun onPermissionResult(permissionRequest: PermissionRequest, granted: Boolean) {
+    fun onPermissionResult(
+        context: Context,
+        permissionRequest: PermissionRequest,
+        granted: Boolean
+    ) {
         when (permissionRequest.action) {
             ACTION_SAVE -> {
                 if (granted) {
@@ -149,5 +126,23 @@ class WordListViewModelImpl(
         super.onCleared()
         wordDao.getAllWordsLive().removeObserver(wordListObserver)
         wordupPlayer.release()
+    }
+
+    enum class Event {
+        PERMISSION_WRITE_SETTINGS,
+        SYSTEM_SOUND_SET,
+        WORD_SAVED
+    }
+
+    data class PermissionRequest(
+        val permission: String,
+        val action: Int,
+        val word: Word? = null,
+        val systemSoundOption: String? = null
+    )
+
+    companion object {
+        const val ACTION_SAVE = 0
+        const val ACTION_SET_SYSTEM_SOUND = 1
     }
 }

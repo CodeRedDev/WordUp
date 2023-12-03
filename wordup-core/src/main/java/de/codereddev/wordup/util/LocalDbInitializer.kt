@@ -45,8 +45,9 @@ class LocalDbInitializer(database: WordUpDatabase) {
      * As this function does a lot of I/O work it should be called asynchronously.
      */
     fun initialize(context: Context) {
-        if (!WordUp.isConfigInitialized())
+        if (!WordUp.isConfigInitialized()) {
             throw IllegalStateException(ErrorConstants.CONFIG_NOT_DEFINED)
+        }
         val config = WordUp.config
 
         if (config.categoriesEnabled) {
@@ -59,8 +60,9 @@ class LocalDbInitializer(database: WordUpDatabase) {
     private fun initializeWithoutCategory(context: Context, config: WordUpConfig) {
         val curWordNames = wordDao.getAllWords().map { it.name }
         val assetList = getWordUpAssets(context)
-        if (assetList.any { !it.endsWith(".mp3") })
+        if (assetList.any { !it.endsWith(".mp3") }) {
             throw IllegalArgumentException(ErrorConstants.INITIALIZER_NO_CATEGORY_SUBFOLDER)
+        }
 
         val fileList = assetList.map { it.replace(".mp3", "") }
 
@@ -89,8 +91,9 @@ class LocalDbInitializer(database: WordUpDatabase) {
         val curCategories = categoryDao.getAllCategories().map { it.name }
 
         val assetList = getWordUpAssets(context)
-        if (assetList.any { it.endsWith(".mp3") })
+        if (assetList.any { it.endsWith(".mp3") }) {
             throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_ROOT_MP3)
+        }
 
         val dirList = assetList.toList()
 
@@ -116,8 +119,9 @@ class LocalDbInitializer(database: WordUpDatabase) {
             val category = Category(newCategory)
             categoryDao.insert(category)
             val assetFileList = getWordUpCategoryAssets(context, newCategory)
-            if (assetFileList.any { !it.endsWith(".mp3") })
+            if (assetFileList.any { !it.endsWith(".mp3") }) {
                 throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_SUBFOLDER)
+            }
 
             val fileList = assetFileList.map { it.replace(".mp3", "") }
             val wordList = mutableListOf<Word>()
@@ -146,8 +150,9 @@ class LocalDbInitializer(database: WordUpDatabase) {
             val curWords = wordDao.getWordsFromCategory(category).map { it.name }
 
             val assetFileList = getWordUpCategoryAssets(context, oldCategory)
-            if (assetFileList.any { !it.endsWith(".mp3") })
+            if (assetFileList.any { !it.endsWith(".mp3") }) {
                 throw IllegalArgumentException(ErrorConstants.INITIALIZER_CATEGORY_SUBFOLDER)
+            }
 
             val fileList = assetFileList.map { it.replace(".mp3", "") }
 
