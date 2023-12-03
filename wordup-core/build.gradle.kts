@@ -74,7 +74,9 @@ configure<PublishingExtension> {
                 pom {
                     packaging = "aar"
                     name.set("WordUp Core")
-                    description.set("An Android open source framework for creating soundboard apps.")
+                    description.set(
+                        "An Android open source framework for creating soundboard apps."
+                    )
                     licenses {
                         license {
                             name.set("The Unlicense")
