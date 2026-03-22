@@ -1,16 +1,19 @@
-package de.codereddev.wordupexample.view
+package de.codereddev.wordupexample
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
+import androidx.core.content.pm.PackageInfoCompat
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.codereddev.wordup.database.WordUpDatabase
 import de.codereddev.wordup.util.LocalDbInitializer
-import de.codereddev.wordupexample.R
+import de.codereddev.wordupexample.ui.LoadingScreen
+import de.codereddev.wordupexample.ui.theme.WordUpExampleTheme
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,9 +26,13 @@ class LoadingScreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_loading_screen)
+        setContent {
+            WordUpExampleTheme {
+                LoadingScreen()
+            }
+        }
 
-        GlobalScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
             if (isAppUpdated()) {
                 LocalDbInitializer(database).initialize(this@LoadingScreenActivity)
             }
@@ -47,14 +54,15 @@ class LoadingScreenActivity : AppCompatActivity() {
      * little check can save you some time at app start.
      */
     private fun isAppUpdated(): Boolean {
-        val currentVersionCode = packageManager.getPackageInfo(packageName, 0).versionCode
-        val prefs = getPreferences(Context.MODE_PRIVATE)
-        val savedVersionCode = prefs.getInt(PREF_KEY_VERSION_CODE, PREF_VERSION_CODE_DEF)
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
+        val prefs = getPreferences(MODE_PRIVATE)
+        val savedVersionCode = prefs.getLong(PREF_KEY_VERSION_CODE, PREF_VERSION_CODE_DEF)
 
         if (currentVersionCode > savedVersionCode) {
-            val editor = prefs.edit()
-            editor.putInt(PREF_KEY_VERSION_CODE, currentVersionCode)
-            editor.apply()
+            prefs.edit {
+                putLong(PREF_KEY_VERSION_CODE, currentVersionCode)
+            }
             return true
         }
         return false
@@ -62,6 +70,6 @@ class LoadingScreenActivity : AppCompatActivity() {
 
     companion object {
         private const val PREF_KEY_VERSION_CODE = "version_code"
-        private const val PREF_VERSION_CODE_DEF = -1
+        private const val PREF_VERSION_CODE_DEF = -1L
     }
 }

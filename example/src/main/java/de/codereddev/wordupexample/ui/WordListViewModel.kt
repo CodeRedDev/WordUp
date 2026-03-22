@@ -1,4 +1,4 @@
-package de.codereddev.wordupexample.viewmodel
+package de.codereddev.wordupexample.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -7,9 +7,8 @@ import android.content.Intent
 import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,9 +17,14 @@ import de.codereddev.wordup.database.WordDao
 import de.codereddev.wordup.player.LocalWordUpPlayer
 import de.codereddev.wordup.util.StorageUtils
 import de.codereddev.wordup.util.UriUtils
-import de.codereddev.wordupexample.R
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -28,61 +32,74 @@ class WordListViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val wordDao: WordDao
 ) : ViewModel() {
-    val wordList: MutableLiveData<List<Word>> = MutableLiveData()
-    private val wordListObserver: Observer<List<Word>> = Observer {
-        wordList.postValue(it)
-    }
-    val events: MutableLiveData<Event> = MutableLiveData()
-    val intents: MutableLiveData<Intent> = MutableLiveData()
-    val permissionRequests: MutableLiveData<PermissionRequest> = MutableLiveData()
+
+    private val _wordList = MutableStateFlow<List<Word>>(emptyList())
+    val wordList: StateFlow<List<Word>> = _wordList.asStateFlow()
+
+    private val _events = Channel<Event>(Channel.Factory.BUFFERED)
+    val events: Flow<Event> = _events.receiveAsFlow()
+
+    private val _intents = Channel<Intent>(Channel.Factory.BUFFERED)
+    val intents: Flow<Intent> = _intents.receiveAsFlow()
+
+    private val _permissionRequests = Channel<PermissionRequest>(Channel.Factory.BUFFERED)
+    val permissionRequests: Flow<PermissionRequest> = _permissionRequests.receiveAsFlow()
 
     private val wordupPlayer = LocalWordUpPlayer(context)
 
     init {
-        wordDao.getAllWordsLive().observeForever(wordListObserver)
+        viewModelScope.launch {
+            wordDao.getAllWordsLive().asFlow().collect { _wordList.value = it }
+        }
     }
 
-    fun onMenuItemSelected(context: Context, word: Word, itemId: Int) {
-        when (itemId) {
-            R.id.action_share -> {
+    fun onMenuItemSelected(context: Context, word: Word, action: WordAction) {
+        when (action) {
+            WordAction.SHARE -> {
                 viewModelScope.launch {
                     val uri = UriUtils.getUriForWord(context, word)
                     val shareIntent = Intent().apply {
-                        action = Intent.ACTION_SEND
+                        this.action = Intent.ACTION_SEND
                         putExtra(Intent.EXTRA_STREAM, uri)
                         type = "audio/mp3"
                     }
-                    intents.postValue(shareIntent)
+                    _intents.send(shareIntent)
                 }
             }
-            R.id.action_save -> {
-                permissionRequests.postValue(
-                    PermissionRequest(
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        ACTION_SAVE,
-                        word
+            WordAction.SAVE -> {
+                viewModelScope.launch {
+                    _permissionRequests.send(
+                        PermissionRequest(
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            ACTION_SAVE,
+                            word
+                        )
                     )
-                )
+                }
             }
             else -> {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
                     Settings.System.canWrite(context)
                 ) {
-                    val option = when (itemId) {
-                        R.id.action_set_ringtone -> MediaStore.Audio.Media.IS_RINGTONE
-                        R.id.action_set_notification -> MediaStore.Audio.Media.IS_NOTIFICATION
+                    val option = when (action) {
+                        WordAction.SET_RINGTONE -> MediaStore.Audio.Media.IS_RINGTONE
+                        WordAction.SET_NOTIFICATION -> MediaStore.Audio.Media.IS_NOTIFICATION
                         else -> MediaStore.Audio.Media.IS_ALARM
                     }
-                    permissionRequests.postValue(
-                        PermissionRequest(
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            ACTION_SET_SYSTEM_SOUND,
-                            word,
-                            option
+                    viewModelScope.launch {
+                        _permissionRequests.send(
+                            PermissionRequest(
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                ACTION_SET_SYSTEM_SOUND,
+                                word,
+                                option
+                            )
                         )
-                    )
+                    }
                 } else {
-                    events.postValue(Event.PERMISSION_WRITE_SETTINGS)
+                    viewModelScope.launch {
+                        _events.send(Event.PERMISSION_WRITE_SETTINGS)
+                    }
                 }
             }
         }
@@ -103,7 +120,7 @@ class WordListViewModel @Inject constructor(
                 if (granted) {
                     viewModelScope.launch(Dispatchers.IO) {
                         StorageUtils.storeWord(context, permissionRequest.word!!)
-                        events.postValue(Event.WORD_SAVED)
+                        _events.send(Event.WORD_SAVED)
                     }
                 }
             }
@@ -115,7 +132,7 @@ class WordListViewModel @Inject constructor(
                             permissionRequest.word!!,
                             arrayOf(permissionRequest.systemSoundOption!!)
                         )
-                        events.postValue(Event.SYSTEM_SOUND_SET)
+                        _events.send(Event.SYSTEM_SOUND_SET)
                     }
                 }
             }
@@ -124,7 +141,6 @@ class WordListViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        wordDao.getAllWordsLive().removeObserver(wordListObserver)
         wordupPlayer.release()
     }
 

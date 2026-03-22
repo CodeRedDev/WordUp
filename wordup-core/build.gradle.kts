@@ -55,7 +55,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 }
 
-version = "0.2.4"
+version = libs.versions.wordup.get()
 
 configure<PublishingExtension> {
     publications {
