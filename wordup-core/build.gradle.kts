@@ -43,7 +43,7 @@ ksp {
 
 dependencies {
     api(libs.androidx.room.runtime)
-    api(libs.androidx.lifecycle.livedata.ktx)
+    api(libs.androidx.room.ktx)
     api(libs.androidx.media3.exoplayer)
 
     implementation(libs.androidx.core.ktx)

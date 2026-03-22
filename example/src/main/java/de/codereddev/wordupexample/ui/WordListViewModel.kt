@@ -8,7 +8,6 @@ import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -49,7 +48,7 @@ class WordListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            wordDao.getAllWordsLive().asFlow().collect { _wordList.value = it }
+            wordDao.getAllWordsLive().collect { _wordList.value = it }
         }
     }
 

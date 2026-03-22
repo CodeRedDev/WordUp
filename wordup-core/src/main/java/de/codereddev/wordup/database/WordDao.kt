@@ -1,6 +1,6 @@
 package de.codereddev.wordup.database
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -68,17 +68,17 @@ interface WordDao {
     fun getWordById(id: Int): Word
 
     @Query("SELECT * FROM Words ORDER BY name ASC")
-    fun getAllWordsLive(): LiveData<List<Word>>
+    fun getAllWordsLive(): Flow<List<Word>>
 
     @Query("SELECT * FROM Words ORDER BY name ASC")
     fun getAllWords(): List<Word>
 
     @Query("SELECT * FROM Words WHERE category = :category ORDER BY name ASC")
-    fun getWordsFromCategoryLive(category: Category): LiveData<List<Word>>
+    fun getWordsFromCategoryLive(category: Category): Flow<List<Word>>
 
     @Query("SELECT * FROM Words WHERE category = :category ORDER BY name ASC")
     fun getWordsFromCategory(category: Category): List<Word>
 
     @Query("SELECT * FROM Words WHERE isFavorite = 1 ORDER BY name ASC")
-    fun getFavoriteWords(): LiveData<List<Word>>
+    fun getFavoriteWords(): Flow<List<Word>>
 }

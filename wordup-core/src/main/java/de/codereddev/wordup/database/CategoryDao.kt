@@ -1,6 +1,6 @@
 package de.codereddev.wordup.database
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -38,7 +38,7 @@ interface CategoryDao {
      */
 
     @Query("SELECT * FROM Categories")
-    fun getAllCategoriesLive(): LiveData<List<Category>>
+    fun getAllCategoriesLive(): Flow<List<Category>>
 
     @Query("SELECT * FROM Categories")
     fun getAllCategories(): List<Category>
