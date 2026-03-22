@@ -1,23 +1,22 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     id("maven-publish")
     id("signing")
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 android {
     namespace = "de.codereddev.wordup"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        ksp {
-            arg("room.incremental", "true")
-        }
     }
 
     buildTypes {
@@ -29,13 +28,6 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 
     publishing {
         singleVariant("release") {
@@ -43,6 +35,10 @@ android {
             withJavadocJar()
         }
     }
+}
+
+ksp {
+    arg("room.incremental", "true")
 }
 
 dependencies {
