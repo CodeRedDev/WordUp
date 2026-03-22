@@ -1,8 +1,8 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("com.google.devtools.ksp")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -44,24 +44,24 @@ dependencies {
     // TODO: Replace this with "de.codereddev.wordup:wordup-core:CURRENT_VERSION"
     implementation(project(":wordup-core"))
 
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.fragment.ktx)
 
     // ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     // Material Design
-    implementation("com.google.android.material:material:1.10.0")
+    implementation(libs.material)
 
-    implementation("com.google.dagger:hilt-android:2.48")
+    implementation(libs.hilt.android)
 
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.junit)
 
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.espresso)
 
-    ksp("com.google.dagger:hilt-compiler:2.48")
-    ksp("androidx.room:room-compiler:2.6.1")
+    ksp(libs.hilt.compiler)
+    ksp(libs.androidx.room.compiler)
 }

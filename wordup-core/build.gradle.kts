@@ -1,7 +1,7 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
     id("maven-publish")
     id("signing")
 }
@@ -46,17 +46,17 @@ android {
 }
 
 dependencies {
-    api("androidx.room:room-runtime:2.6.1")
-    api("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
-    api("androidx.media3:media3-exoplayer:1.2.0")
+    api(libs.androidx.room.runtime)
+    api(libs.androidx.lifecycle.livedata.ktx)
+    api(libs.androidx.media3.exoplayer)
 
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation(libs.androidx.core.ktx)
 
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.junit)
 
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    ksp("androidx.room:room-compiler:2.6.1")
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.espresso)
+    ksp(libs.androidx.room.compiler)
 }
 
 version = "0.2.4"
