@@ -1,5 +1,5 @@
 [versions]
-wordup = "0.2.4"
+wordup = "0.3.0"
 agp = "9.1.0"
 kotlin = "2.3.20"
 ksp = "2.3.6"
